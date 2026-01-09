@@ -128,9 +128,19 @@ export default function Dashboard() {
           <Button 
             variant="outline" 
             className="h-auto py-4 flex flex-col items-center gap-2 border-secondary/30 hover:bg-secondary/5"
+            onClick={() => navigate('/payments')}
           >
             <DollarSign className="h-6 w-6 text-secondary" />
             <span className="text-sm font-medium">Payments</span>
+          </Button>
+
+          <Button 
+            variant="outline" 
+            className="h-auto py-4 flex flex-col items-center gap-2 border-primary/30 hover:bg-primary/5"
+            onClick={() => navigate('/trips')}
+          >
+            <MapPin className="h-6 w-6 text-primary" />
+            <span className="text-sm font-medium">Trips</span>
           </Button>
         </div>
 

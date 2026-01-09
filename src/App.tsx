@@ -8,6 +8,8 @@ import Landing from "./pages/Landing";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
 import CreateClub from "./pages/CreateClub";
+import Payments from "./pages/Payments";
+import Trips from "./pages/Trips";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -24,6 +26,8 @@ const App = () => (
             <Route path="/auth" element={<Auth />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/clubs/create" element={<CreateClub />} />
+            <Route path="/payments" element={<Payments />} />
+            <Route path="/trips" element={<Trips />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
