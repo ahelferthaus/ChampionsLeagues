@@ -3,15 +3,15 @@ import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { generateDemoEvents, generateDemoTrips, generateDemoPayments } from '@/lib/demo-data';
+import { getOrCreateDemoTeam } from '@/lib/demo-team';
 import { Sparkles } from 'lucide-react';
 
 interface LoadDemoDataButtonProps {
-  teamId: string;
   userId: string;
   onComplete?: () => void;
 }
 
-export function LoadDemoDataButton({ teamId, userId, onComplete }: LoadDemoDataButtonProps) {
+export function LoadDemoDataButton({ userId, onComplete }: LoadDemoDataButtonProps) {
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
@@ -19,6 +19,13 @@ export function LoadDemoDataButton({ teamId, userId, onComplete }: LoadDemoDataB
     setLoading(true);
 
     try {
+      // Get or create a real team with valid UUID
+      const teamId = await getOrCreateDemoTeam(userId);
+      
+      if (!teamId) {
+        throw new Error('Could not create demo team');
+      }
+
       // Load demo events
       const demoEvents = generateDemoEvents(teamId, userId);
       const { error: eventsError } = await supabase

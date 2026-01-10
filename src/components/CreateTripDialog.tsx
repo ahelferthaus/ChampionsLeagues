@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { useToast } from '@/hooks/use-toast';
 import {
   Dialog,
   DialogContent,
@@ -12,9 +13,9 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { Plus, Plane } from 'lucide-react';
+import { getOrCreateDemoTeam } from '@/lib/demo-team';
 
 interface CreateTripDialogProps {
-  teamId: string;
   userId: string;
   onCreateTrip: (trip: {
     team_id: string;
@@ -29,9 +30,10 @@ interface CreateTripDialogProps {
   trigger?: React.ReactNode;
 }
 
-export function CreateTripDialog({ teamId, userId, onCreateTrip, trigger }: CreateTripDialogProps) {
+export function CreateTripDialog({ userId, onCreateTrip, trigger }: CreateTripDialogProps) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const { toast } = useToast();
   const [formData, setFormData] = useState({
     name: '',
     destination: '',
@@ -46,29 +48,44 @@ export function CreateTripDialog({ teamId, userId, onCreateTrip, trigger }: Crea
     if (!formData.name || !formData.destination || !formData.departure_date) return;
 
     setLoading(true);
-    const { error } = await onCreateTrip({
-      team_id: teamId,
-      name: formData.name,
-      destination: formData.destination,
-      departure_date: formData.departure_date,
-      return_date: formData.return_date || null,
-      meeting_location: formData.meeting_location || null,
-      notes: formData.notes || null,
-      created_by: userId,
-    });
+    
+    try {
+      const teamId = await getOrCreateDemoTeam(userId);
+      
+      if (!teamId) {
+        toast({
+          title: 'Error',
+          description: 'Could not create team. Please try again.',
+          variant: 'destructive',
+        });
+        setLoading(false);
+        return;
+      }
 
-    setLoading(false);
-
-    if (!error) {
-      setFormData({
-        name: '',
-        destination: '',
-        departure_date: '',
-        return_date: '',
-        meeting_location: '',
-        notes: '',
+      const { error } = await onCreateTrip({
+        team_id: teamId,
+        name: formData.name,
+        destination: formData.destination,
+        departure_date: formData.departure_date,
+        return_date: formData.return_date || null,
+        meeting_location: formData.meeting_location || null,
+        notes: formData.notes || null,
+        created_by: userId,
       });
-      setOpen(false);
+
+      if (!error) {
+        setFormData({
+          name: '',
+          destination: '',
+          departure_date: '',
+          return_date: '',
+          meeting_location: '',
+          notes: '',
+        });
+        setOpen(false);
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
