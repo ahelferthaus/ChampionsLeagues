@@ -4,14 +4,19 @@ import { useAuth } from '@/hooks/useAuth';
 import { useTrips, Trip } from '@/hooks/useTrips';
 import { TripsList } from '@/components/TripsList';
 import { TripPlanner } from '@/components/TripPlanner';
+import { CreateTripDialog } from '@/components/CreateTripDialog';
+import { LoadDemoDataButton } from '@/components/LoadDemoDataButton';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Trophy, ArrowLeft, MapPin, Calendar, Plane } from 'lucide-react';
+import { Trophy, ArrowLeft, MapPin, Plane } from 'lucide-react';
 import { downloadICS, generateTripICS } from '@/lib/calendar-export';
+
+// Demo team ID for showcase purposes
+const DEMO_TEAM_ID = 'demo-team-id';
 
 export default function Trips() {
   const { user, loading: authLoading } = useAuth();
-  const { trips, loading } = useTrips();
+  const { trips, loading, createTrip, refetch } = useTrips();
   const navigate = useNavigate();
   const [selectedTrip, setSelectedTrip] = useState<Trip | null>(null);
   const [showPlanner, setShowPlanner] = useState(false);
@@ -49,12 +54,26 @@ export default function Trips() {
     <div className="min-h-screen bg-background">
       <header className="bg-sidebar text-sidebar-foreground sticky top-0 z-50 border-b border-sidebar-border">
         <div className="max-w-4xl mx-auto px-4 py-4">
-          <div className="flex items-center gap-3">
-            <Button variant="ghost" size="icon" onClick={() => navigate('/dashboard')}>
-              <ArrowLeft className="h-5 w-5" />
-            </Button>
-            <Trophy className="h-8 w-8 text-primary" />
-            <span className="text-xl font-bold">Trips & Travel</span>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <Button variant="ghost" size="icon" onClick={() => navigate('/dashboard')}>
+                <ArrowLeft className="h-5 w-5" />
+              </Button>
+              <Trophy className="h-8 w-8 text-primary" />
+              <span className="text-xl font-bold">Trips & Travel</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <LoadDemoDataButton 
+                teamId={DEMO_TEAM_ID} 
+                userId={user.id} 
+                onComplete={refetch}
+              />
+              <CreateTripDialog
+                teamId={DEMO_TEAM_ID}
+                userId={user.id}
+                onCreateTrip={createTrip}
+              />
+            </div>
           </div>
         </div>
       </header>

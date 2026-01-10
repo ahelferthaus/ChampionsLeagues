@@ -3,12 +3,16 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { usePayments } from '@/hooks/usePayments';
 import { PaymentsList } from '@/components/PaymentsList';
+import { LoadDemoDataButton } from '@/components/LoadDemoDataButton';
 import { Button } from '@/components/ui/button';
 import { Trophy, ArrowLeft, DollarSign } from 'lucide-react';
 
+// Demo team ID for showcase purposes
+const DEMO_TEAM_ID = 'demo-team-id';
+
 export default function Payments() {
   const { user, roles, loading: authLoading } = useAuth();
-  const { payments, loading, updatePaymentStatus } = usePayments();
+  const { payments, loading, updatePaymentStatus, refetch } = usePayments();
   const navigate = useNavigate();
 
   const isManager = roles.includes('club_admin') || roles.includes('team_manager');
@@ -41,12 +45,19 @@ export default function Payments() {
     <div className="min-h-screen bg-background">
       <header className="bg-sidebar text-sidebar-foreground sticky top-0 z-50 border-b border-sidebar-border">
         <div className="max-w-4xl mx-auto px-4 py-4">
-          <div className="flex items-center gap-3">
-            <Button variant="ghost" size="icon" onClick={() => navigate('/dashboard')}>
-              <ArrowLeft className="h-5 w-5" />
-            </Button>
-            <Trophy className="h-8 w-8 text-primary" />
-            <span className="text-xl font-bold">Payments</span>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <Button variant="ghost" size="icon" onClick={() => navigate('/dashboard')}>
+                <ArrowLeft className="h-5 w-5" />
+              </Button>
+              <Trophy className="h-8 w-8 text-primary" />
+              <span className="text-xl font-bold">Payments</span>
+            </div>
+            <LoadDemoDataButton 
+              teamId={DEMO_TEAM_ID} 
+              userId={user.id} 
+              onComplete={refetch}
+            />
           </div>
         </div>
       </header>

@@ -1,26 +1,26 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isSameMonth, addMonths, subMonths } from 'date-fns';
+import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, addMonths, subMonths } from 'date-fns';
 import { useAuth } from '@/hooks/useAuth';
 import { useEvents } from '@/hooks/useEvents';
 import { EventCard } from '@/components/EventCard';
 import { ScheduleImportDialog } from '@/components/ScheduleImportDialog';
+import { LoadDemoDataButton } from '@/components/LoadDemoDataButton';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Trophy, ArrowLeft, Calendar as CalendarIcon, List, Download, ChevronLeft, ChevronRight } from 'lucide-react';
 import { downloadICS, generateEventsICS } from '@/lib/calendar-export';
 
+// Demo team ID for showcase purposes
+const DEMO_TEAM_ID = 'demo-team-id';
+
 export default function Schedule() {
   const { user, loading: authLoading } = useAuth();
-  const { events, loading, importEvents, deleteEvent } = useEvents();
+  const { events, loading, importEvents, deleteEvent, refetch } = useEvents();
   const navigate = useNavigate();
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [viewMode, setViewMode] = useState<'list' | 'calendar'>('list');
-
-  // For demo purposes, we'll use a placeholder team ID
-  const demoTeamId = 'demo-team-id';
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -67,8 +67,13 @@ export default function Schedule() {
               <span className="text-xl font-bold">Team Schedule</span>
             </div>
             <div className="flex items-center gap-2">
+              <LoadDemoDataButton 
+                teamId={DEMO_TEAM_ID} 
+                userId={user.id} 
+                onComplete={refetch}
+              />
               <ScheduleImportDialog 
-                teamId={demoTeamId}
+                teamId={DEMO_TEAM_ID}
                 onImport={importEvents}
               />
               <Button variant="outline" onClick={handleExportAll} disabled={events.length === 0}>
@@ -181,8 +186,8 @@ export default function Schedule() {
                   <CardContent className="flex flex-col items-center justify-center py-8 text-center">
                     <CalendarIcon className="h-12 w-12 text-muted-foreground mb-4" />
                     <p className="text-muted-foreground mb-4">No upcoming events</p>
-                    <ScheduleImportDialog 
-                      teamId={demoTeamId}
+                <ScheduleImportDialog 
+                      teamId={DEMO_TEAM_ID}
                       onImport={importEvents}
                       trigger={<Button>Import Schedule</Button>}
                     />
