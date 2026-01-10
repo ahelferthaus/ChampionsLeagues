@@ -52,7 +52,27 @@ export async function getOrCreateDemoTeam(userId: string): Promise<string | null
     .limit(1);
 
   if (teams && teams.length > 0) {
-    cachedTeamId = teams[0].id;
+    const teamId = teams[0].id;
+    
+    // Ensure user is a team manager for this team
+    const { data: existingMembership } = await supabase
+      .from('team_members')
+      .select('id')
+      .eq('team_id', teamId)
+      .eq('user_id', userId)
+      .limit(1);
+
+    if (!existingMembership || existingMembership.length === 0) {
+      await supabase
+        .from('team_members')
+        .insert({
+          team_id: teamId,
+          user_id: userId,
+          role: 'team_manager',
+        });
+    }
+
+    cachedTeamId = teamId;
     return cachedTeamId;
   }
 
@@ -74,6 +94,15 @@ export async function getOrCreateDemoTeam(userId: string): Promise<string | null
     console.error('Failed to create demo team:', teamError);
     return null;
   }
+
+  // Add user as team manager so they can create events, trips, payments
+  await supabase
+    .from('team_members')
+    .insert({
+      team_id: newTeam.id,
+      user_id: userId,
+      role: 'team_manager',
+    });
 
   cachedTeamId = newTeam.id;
   return cachedTeamId;
