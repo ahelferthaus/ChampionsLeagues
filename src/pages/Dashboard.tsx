@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
+import { MainNavigation } from '@/components/MainNavigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ClubExecutiveDashboard } from '@/components/ClubExecutiveDashboard';
@@ -12,13 +13,11 @@ import {
   DollarSign, 
   MapPin, 
   Plus,
-  LogOut,
-  Building2,
-  UserCircle
+  Building2
 } from 'lucide-react';
 
 export default function Dashboard() {
-  const { user, profile, roles, loading, signOut } = useAuth();
+  const { user, profile, roles, loading } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -26,11 +25,6 @@ export default function Dashboard() {
       navigate('/auth');
     }
   }, [user, loading, navigate]);
-
-  const handleSignOut = async () => {
-    await signOut();
-    navigate('/auth');
-  };
 
   if (loading) {
     return (
@@ -44,45 +38,10 @@ export default function Dashboard() {
 
   const isAdmin = roles.includes('club_admin');
   const isManager = roles.includes('team_manager');
-  const isParent = roles.includes('parent');
-  const isPlayer = roles.includes('player');
-
-  const getRoleLabel = () => {
-    if (isAdmin) return 'Club Administrator';
-    if (isManager) return 'Team Manager';
-    if (isParent) return 'Parent';
-    if (isPlayer) return 'Player';
-    return 'Member';
-  };
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="bg-sidebar text-sidebar-foreground sticky top-0 z-50 border-b border-sidebar-border">
-        <div className="max-w-7xl mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <Trophy className="h-8 w-8 text-primary" />
-              <span className="text-xl font-bold">Champions</span>
-            </div>
-            
-            <div className="flex items-center gap-4">
-              <div className="text-right hidden sm:block">
-                <p className="font-medium">{profile?.full_name || user.email}</p>
-                <p className="text-sm text-sidebar-foreground/70">{getRoleLabel()}</p>
-              </div>
-              <Button 
-                variant="ghost" 
-                size="icon"
-                onClick={handleSignOut}
-                className="text-sidebar-foreground hover:bg-sidebar-accent"
-              >
-                <LogOut className="h-5 w-5" />
-              </Button>
-            </div>
-          </div>
-        </div>
-      </header>
+      <MainNavigation />
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 py-8">

@@ -6,11 +6,11 @@ import { EventCard } from '@/components/EventCard';
 import { ScheduleImportDialog } from '@/components/ScheduleImportDialog';
 import { LoadDemoDataButton } from '@/components/LoadDemoDataButton';
 import { ScheduleCalendar } from '@/components/ScheduleCalendar';
-import { TeamHeader } from '@/components/TeamHeader';
+import { MainNavigation } from '@/components/MainNavigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ArrowLeft, Calendar as CalendarIcon, List, Download } from 'lucide-react';
+import { Calendar as CalendarIcon, List, Download } from 'lucide-react';
 import { downloadICS, generateEventsICS } from '@/lib/calendar-export';
 
 export default function Schedule() {
@@ -45,31 +45,23 @@ export default function Schedule() {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="bg-sidebar text-sidebar-foreground sticky top-0 z-50 border-b border-sidebar-border">
-        <div className="max-w-6xl mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <Button variant="ghost" size="icon" onClick={() => navigate('/dashboard')}>
-                <ArrowLeft className="h-5 w-5" />
-              </Button>
-              <TeamHeader title="Team Schedule" />
-            </div>
-            <div className="flex items-center gap-2">
-              <LoadDemoDataButton 
-                userId={user.id} 
-                onComplete={refetch}
-              />
-              <ScheduleImportDialog 
-                onImport={importEvents}
-              />
-              <Button variant="outline" onClick={handleExportAll} disabled={events.length === 0}>
-                <Download className="h-4 w-4 mr-2" />
-                Export
-              </Button>
-            </div>
+      <MainNavigation />
+
+      <main className="max-w-6xl mx-auto px-4 py-8">
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h1 className="text-3xl font-bold text-foreground">Team Schedule</h1>
+            <p className="text-muted-foreground">Manage games, practices, and events</p>
+          </div>
+          <div className="flex items-center gap-2">
+            <LoadDemoDataButton userId={user.id} onComplete={refetch} />
+            <ScheduleImportDialog onImport={importEvents} />
+            <Button variant="outline" onClick={handleExportAll} disabled={events.length === 0}>
+              <Download className="h-4 w-4 mr-2" />
+              Export
+            </Button>
           </div>
         </div>
-      </header>
 
       <main className="max-w-6xl mx-auto px-4 py-8">
         {/* Summary */}

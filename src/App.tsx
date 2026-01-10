@@ -12,6 +12,8 @@ import CreateClub from "./pages/CreateClub";
 import Payments from "./pages/Payments";
 import Trips from "./pages/Trips";
 import Schedule from "./pages/Schedule";
+import Roster from "./pages/Roster";
+import Stats from "./pages/Stats";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -32,6 +34,8 @@ const App = () => (
               <Route path="/payments" element={<Payments />} />
               <Route path="/trips" element={<Trips />} />
               <Route path="/schedule" element={<Schedule />} />
+              <Route path="/roster" element={<Roster />} />
+              <Route path="/stats" element={<Stats />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>

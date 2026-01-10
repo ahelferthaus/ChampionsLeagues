@@ -4,9 +4,9 @@ import { useAuth } from '@/hooks/useAuth';
 import { usePayments } from '@/hooks/usePayments';
 import { PaymentsList } from '@/components/PaymentsList';
 import { LoadDemoDataButton } from '@/components/LoadDemoDataButton';
-import { TeamHeader } from '@/components/TeamHeader';
+import { MainNavigation } from '@/components/MainNavigation';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, DollarSign, CreditCard } from 'lucide-react';
+import { DollarSign, CreditCard } from 'lucide-react';
 
 export default function Payments() {
   const { user, roles, loading: authLoading } = useAuth();
@@ -41,22 +41,16 @@ export default function Payments() {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="bg-sidebar text-sidebar-foreground sticky top-0 z-50 border-b border-sidebar-border">
-        <div className="max-w-4xl mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <Button variant="ghost" size="icon" onClick={() => navigate('/dashboard')}>
-                <ArrowLeft className="h-5 w-5" />
-              </Button>
-              <TeamHeader title="Payments" />
-            </div>
-            <LoadDemoDataButton 
-              userId={user.id} 
-              onComplete={refetch}
-            />
+      <MainNavigation />
+
+      <main className="max-w-4xl mx-auto px-4 py-8">
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h1 className="text-3xl font-bold text-foreground">Payments</h1>
+            <p className="text-muted-foreground">Manage team fees and payments</p>
           </div>
+          <LoadDemoDataButton userId={user.id} onComplete={refetch} />
         </div>
-      </header>
 
       <main className="max-w-4xl mx-auto px-4 py-8">
         {/* Summary Card */}

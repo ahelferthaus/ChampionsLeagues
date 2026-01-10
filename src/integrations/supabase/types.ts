@@ -218,6 +218,86 @@ export type Database = {
         }
         Relationships: []
       }
+      message_recipients: {
+        Row: {
+          id: string
+          is_read: boolean
+          message_id: string
+          read_at: string | null
+          team_member_id: string | null
+          user_id: string | null
+        }
+        Insert: {
+          id?: string
+          is_read?: boolean
+          message_id: string
+          read_at?: string | null
+          team_member_id?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          id?: string
+          is_read?: boolean
+          message_id?: string
+          read_at?: string | null
+          team_member_id?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "message_recipients_message_id_fkey"
+            columns: ["message_id"]
+            isOneToOne: false
+            referencedRelation: "messages"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "message_recipients_team_member_id_fkey"
+            columns: ["team_member_id"]
+            isOneToOne: false
+            referencedRelation: "team_members"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      messages: {
+        Row: {
+          body: string
+          created_at: string
+          id: string
+          is_group_message: boolean
+          sender_id: string
+          subject: string
+          team_id: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          id?: string
+          is_group_message?: boolean
+          sender_id: string
+          subject: string
+          team_id: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          id?: string
+          is_group_message?: boolean
+          sender_id?: string
+          subject?: string
+          team_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       payments: {
         Row: {
           amount: number
@@ -261,6 +341,53 @@ export type Database = {
             columns: ["team_id"]
             isOneToOne: false
             referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      player_stats: {
+        Row: {
+          assists: number | null
+          created_at: string
+          games_played: number
+          goals: number | null
+          id: string
+          minutes_played: number | null
+          red_cards: number | null
+          season: string
+          team_member_id: string
+          yellow_cards: number | null
+        }
+        Insert: {
+          assists?: number | null
+          created_at?: string
+          games_played?: number
+          goals?: number | null
+          id?: string
+          minutes_played?: number | null
+          red_cards?: number | null
+          season: string
+          team_member_id: string
+          yellow_cards?: number | null
+        }
+        Update: {
+          assists?: number | null
+          created_at?: string
+          games_played?: number
+          goals?: number | null
+          id?: string
+          minutes_played?: number | null
+          red_cards?: number | null
+          season?: string
+          team_member_id?: string
+          yellow_cards?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "player_stats_team_member_id_fkey"
+            columns: ["team_member_id"]
+            isOneToOne: false
+            referencedRelation: "team_members"
             referencedColumns: ["id"]
           },
         ]
@@ -411,6 +538,62 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "team_members_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      team_stats: {
+        Row: {
+          created_at: string
+          division: string | null
+          goals_against: number | null
+          goals_for: number | null
+          id: string
+          league_name: string | null
+          league_rank: number | null
+          losses: number
+          season: string
+          team_id: string
+          ties: number
+          updated_at: string
+          wins: number
+        }
+        Insert: {
+          created_at?: string
+          division?: string | null
+          goals_against?: number | null
+          goals_for?: number | null
+          id?: string
+          league_name?: string | null
+          league_rank?: number | null
+          losses?: number
+          season: string
+          team_id: string
+          ties?: number
+          updated_at?: string
+          wins?: number
+        }
+        Update: {
+          created_at?: string
+          division?: string | null
+          goals_against?: number | null
+          goals_for?: number | null
+          id?: string
+          league_name?: string | null
+          league_rank?: number | null
+          losses?: number
+          season?: string
+          team_id?: string
+          ties?: number
+          updated_at?: string
+          wins?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "team_stats_team_id_fkey"
             columns: ["team_id"]
             isOneToOne: false
             referencedRelation: "teams"
@@ -600,6 +783,54 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      video_links: {
+        Row: {
+          created_at: string
+          event_id: string | null
+          id: string
+          platform: string
+          team_id: string
+          thumbnail_url: string | null
+          title: string
+          url: string
+        }
+        Insert: {
+          created_at?: string
+          event_id?: string | null
+          id?: string
+          platform: string
+          team_id: string
+          thumbnail_url?: string | null
+          title: string
+          url: string
+        }
+        Update: {
+          created_at?: string
+          event_id?: string | null
+          id?: string
+          platform?: string
+          team_id?: string
+          thumbnail_url?: string | null
+          title?: string
+          url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "video_links_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "video_links_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
