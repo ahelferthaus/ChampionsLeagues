@@ -129,6 +129,68 @@ export type Database = {
           },
         ]
       }
+      events: {
+        Row: {
+          created_at: string
+          created_by: string
+          description: string | null
+          end_time: string | null
+          event_type: string
+          external_id: string | null
+          external_source: string | null
+          id: string
+          is_home_game: boolean | null
+          location: string | null
+          opponent: string | null
+          start_time: string
+          team_id: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          description?: string | null
+          end_time?: string | null
+          event_type?: string
+          external_id?: string | null
+          external_source?: string | null
+          id?: string
+          is_home_game?: boolean | null
+          location?: string | null
+          opponent?: string | null
+          start_time: string
+          team_id: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          end_time?: string | null
+          event_type?: string
+          external_id?: string | null
+          external_source?: string | null
+          id?: string
+          is_home_game?: boolean | null
+          location?: string | null
+          opponent?: string | null
+          start_time?: string
+          team_id?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "events_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       leagues: {
         Row: {
           created_at: string
@@ -396,6 +458,74 @@ export type Database = {
             columns: ["club_id"]
             isOneToOne: false
             referencedRelation: "clubs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      trip_itinerary: {
+        Row: {
+          age_groups: string[] | null
+          booking_reference: string | null
+          booking_url: string | null
+          cost_estimate: number | null
+          created_at: string
+          created_by: string
+          description: string | null
+          end_time: string | null
+          id: string
+          item_type: string
+          location: string | null
+          notes: string | null
+          sort_order: number | null
+          start_time: string | null
+          title: string
+          trip_id: string
+          updated_at: string
+        }
+        Insert: {
+          age_groups?: string[] | null
+          booking_reference?: string | null
+          booking_url?: string | null
+          cost_estimate?: number | null
+          created_at?: string
+          created_by: string
+          description?: string | null
+          end_time?: string | null
+          id?: string
+          item_type: string
+          location?: string | null
+          notes?: string | null
+          sort_order?: number | null
+          start_time?: string | null
+          title: string
+          trip_id: string
+          updated_at?: string
+        }
+        Update: {
+          age_groups?: string[] | null
+          booking_reference?: string | null
+          booking_url?: string | null
+          cost_estimate?: number | null
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          end_time?: string | null
+          id?: string
+          item_type?: string
+          location?: string | null
+          notes?: string | null
+          sort_order?: number | null
+          start_time?: string | null
+          title?: string
+          trip_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trip_itinerary_trip_id_fkey"
+            columns: ["trip_id"]
+            isOneToOne: false
+            referencedRelation: "trips"
             referencedColumns: ["id"]
           },
         ]

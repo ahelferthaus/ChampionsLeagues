@@ -1,15 +1,20 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
-import { useTrips } from '@/hooks/useTrips';
+import { useTrips, Trip } from '@/hooks/useTrips';
 import { TripsList } from '@/components/TripsList';
+import { TripPlanner } from '@/components/TripPlanner';
 import { Button } from '@/components/ui/button';
-import { Trophy, ArrowLeft, MapPin } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Trophy, ArrowLeft, MapPin, Calendar, Plane } from 'lucide-react';
+import { downloadICS, generateTripICS } from '@/lib/calendar-export';
 
 export default function Trips() {
   const { user, loading: authLoading } = useAuth();
   const { trips, loading } = useTrips();
   const navigate = useNavigate();
+  const [selectedTrip, setSelectedTrip] = useState<Trip | null>(null);
+  const [showPlanner, setShowPlanner] = useState(false);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -30,6 +35,16 @@ export default function Trips() {
   const upcomingTrips = trips.filter(t => new Date(t.departure_date) > new Date());
   const pastTrips = trips.filter(t => new Date(t.departure_date) <= new Date());
 
+  const handlePlanTrip = (trip: Trip) => {
+    setSelectedTrip(trip);
+    setShowPlanner(true);
+  };
+
+  const handleExportTrip = (trip: Trip) => {
+    const ics = generateTripICS(trip);
+    downloadICS(ics, `${trip.name.replace(/\s+/g, '-')}.ics`);
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <header className="bg-sidebar text-sidebar-foreground sticky top-0 z-50 border-b border-sidebar-border">
@@ -49,7 +64,7 @@ export default function Trips() {
         <div className="bg-secondary/10 rounded-lg p-6 mb-8">
           <div className="flex items-center gap-4">
             <div className="bg-secondary/20 p-3 rounded-full">
-              <MapPin className="h-8 w-8 text-secondary" />
+              <MapPin className="h-8 w-8 text-secondary-foreground" />
             </div>
             <div>
               <p className="text-sm text-muted-foreground">Upcoming Trips</p>
@@ -64,6 +79,8 @@ export default function Trips() {
           <TripsList 
             trips={upcomingTrips} 
             loading={loading}
+            onPlanTrip={handlePlanTrip}
+            onExportTrip={handleExportTrip}
           />
         </div>
 
@@ -74,10 +91,24 @@ export default function Trips() {
             <TripsList 
               trips={pastTrips} 
               loading={loading}
+              onExportTrip={handleExportTrip}
             />
           </div>
         )}
       </main>
+
+      {/* Trip Planner Dialog */}
+      <Dialog open={showPlanner} onOpenChange={setShowPlanner}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Plane className="h-5 w-5" />
+              Plan Your Trip
+            </DialogTitle>
+          </DialogHeader>
+          {selectedTrip && <TripPlanner trip={selectedTrip} />}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
