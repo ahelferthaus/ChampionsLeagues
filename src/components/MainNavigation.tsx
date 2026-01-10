@@ -12,10 +12,10 @@ import {
   ClipboardCheck,
   GraduationCap,
   Receipt,
-  LogOut
+  LogOut,
+  UserCircle
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
-import { ProfileSettingsDialog } from '@/components/ProfileSettingsDialog';
 
 const navItems = [
   { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -82,9 +82,21 @@ export function MainNavigation() {
             })}
           </nav>
 
-          {/* Settings & Sign Out */}
+          {/* Profile & Sign Out */}
           <div className="flex items-center gap-1">
-            <ProfileSettingsDialog />
+            <Button 
+              variant={location.pathname === '/profile' ? 'secondary' : 'ghost'}
+              size="sm" 
+              onClick={() => navigate('/profile')}
+              className={`gap-2 ${
+                location.pathname === '/profile'
+                  ? 'bg-sidebar-accent text-sidebar-accent-foreground'
+                  : 'text-sidebar-foreground/80 hover:text-sidebar-foreground hover:bg-sidebar-accent/20'
+              }`}
+            >
+              <UserCircle className="h-4 w-4" />
+              <span className="hidden md:inline">Profile</span>
+            </Button>
             <Button 
               variant="ghost" 
               size="sm" 
