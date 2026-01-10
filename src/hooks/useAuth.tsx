@@ -71,24 +71,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const fetchUserData = async (userId: string) => {
     try {
-      // Fetch profile
-      const { data: profileData } = await supabase
+      // Fetch profile - use maybeSingle() to handle case where profile doesn't exist yet
+      const { data: profileData, error: profileError } = await supabase
         .from('profiles')
         .select('*')
         .eq('user_id', userId)
-        .single();
+        .maybeSingle();
 
-      if (profileData) {
+      if (profileError) {
+        console.error('Error fetching profile:', profileError);
+      } else if (profileData) {
         setProfile(profileData as UserProfile);
       }
 
       // Fetch roles
-      const { data: rolesData } = await supabase
+      const { data: rolesData, error: rolesError } = await supabase
         .from('user_roles')
         .select('role')
         .eq('user_id', userId);
 
-      if (rolesData) {
+      if (rolesError) {
+        console.error('Error fetching roles:', rolesError);
+      } else if (rolesData) {
         setRoles((rolesData as UserRole[]).map(r => r.role));
       }
     } catch (error) {
