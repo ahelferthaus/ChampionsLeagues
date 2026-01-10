@@ -9,6 +9,7 @@ import Landing from "./pages/Landing";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
 import CreateClub from "./pages/CreateClub";
+import CreateTeam from "./pages/CreateTeam";
 import Payments from "./pages/Payments";
 import Trips from "./pages/Trips";
 import Schedule from "./pages/Schedule";
@@ -36,6 +37,7 @@ const App = () => (
               <Route path="/auth" element={<Auth />} />
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/clubs/create" element={<CreateClub />} />
+          <Route path="/teams/create" element={<CreateTeam />} />
               <Route path="/payments" element={<Payments />} />
               <Route path="/trips" element={<Trips />} />
               <Route path="/schedule" element={<Schedule />} />

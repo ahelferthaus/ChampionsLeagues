@@ -1,6 +1,13 @@
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useTeam } from '@/contexts/TeamContext';
 import { Button } from '@/components/ui/button';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { 
   LayoutDashboard, 
   Calendar, 
@@ -13,7 +20,10 @@ import {
   GraduationCap,
   Receipt,
   LogOut,
-  UserCircle
+  UserCircle,
+  Check,
+  ChevronDown,
+  Plus
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -33,8 +43,16 @@ const navItems = [
 export function MainNavigation() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { team } = useTeam();
+  const { team, teams, setTeam } = useTeam();
   const { signOut } = useAuth();
+
+  const handleTeamChange = (value: string) => {
+    if (value === '__create_team__') {
+      navigate('/teams/create');
+    } else {
+      setTeam(value);
+    }
+  };
 
   const handleSignOut = async () => {
     await signOut();
@@ -45,17 +63,55 @@ export function MainNavigation() {
     <header className="bg-sidebar text-sidebar-foreground sticky top-0 z-50 border-b border-sidebar-border">
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex items-center justify-between h-20 py-3">
-          {/* Logo and Team Name */}
-          <div className="flex items-center gap-3 min-w-[200px]">
-            <img 
-              src={team.logoUrl} 
-              alt={`${team.clubName} logo`}
-              className="h-12 w-12 object-contain"
-            />
-            <div>
-              <p className="text-sm font-semibold">{team.clubName}</p>
-              <p className="text-xs text-sidebar-foreground/70">{team.name}</p>
-            </div>
+          {/* Team Switcher */}
+          <div className="flex items-center gap-3 min-w-[240px]">
+            {team ? (
+              <Select value={team.id} onValueChange={handleTeamChange}>
+                <SelectTrigger className="w-[220px] bg-sidebar-accent/50 border-sidebar-border">
+                  <SelectValue>
+                    <div className="flex items-center gap-2">
+                      <img 
+                        src={team.logoUrl} 
+                        alt={team.clubName}
+                        className="h-6 w-6 object-contain"
+                      />
+                      <div className="flex flex-col items-start text-left">
+                        <span className="text-xs font-medium">{team.clubName}</span>
+                        <span className="text-xs text-muted-foreground">{team.name}</span>
+                      </div>
+                    </div>
+                  </SelectValue>
+                </SelectTrigger>
+                <SelectContent className="max-h-[400px]">
+                  {teams.map((t) => (
+                    <SelectItem key={t.id} value={t.id}>
+                      <div className="flex items-center gap-2 py-1">
+                        <img 
+                          src={t.club.logo_url || team.logoUrl} 
+                          alt={t.club.name}
+                          className="h-6 w-6 object-contain"
+                        />
+                        <div className="flex flex-col">
+                          <span className="font-medium text-sm">{t.club.name}</span>
+                          <span className="text-xs text-muted-foreground">{t.name}</span>
+                        </div>
+                        {team.id === t.id && (
+                          <Check className="ml-auto h-4 w-4 text-primary" />
+                        )}
+                      </div>
+                    </SelectItem>
+                  ))}
+                  <SelectItem value="__create_team__" className="text-primary border-t">
+                    <div className="flex items-center gap-2 py-1">
+                      <Plus className="h-4 w-4" />
+                      <span>Create New Team</span>
+                    </div>
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            ) : (
+              <div className="text-sm text-muted-foreground">No team selected</div>
+            )}
           </div>
 
           {/* Navigation Tabs */}
