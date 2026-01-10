@@ -8,10 +8,17 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type",
 };
 
+// Validation constants
+const VALID_EMAIL_TYPES = ["attendance_reminder", "event_notification", "team_announcement", "custom"] as const;
+const MAX_SUBJECT_LENGTH = 200;
+const MAX_MESSAGE_LENGTH = 5000;
+const MAX_NAME_LENGTH = 100;
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 interface EmailRequest {
   to: string | string[];
   subject: string;
-  type: "attendance_reminder" | "event_notification" | "team_announcement" | "custom";
+  type: typeof VALID_EMAIL_TYPES[number];
   data: {
     recipientName?: string;
     eventName?: string;
@@ -20,7 +27,92 @@ interface EmailRequest {
     eventLocation?: string;
     teamName?: string;
     message?: string;
-    customHtml?: string;
+  };
+}
+
+function validateEmail(email: string): boolean {
+  return EMAIL_REGEX.test(email) && email.length <= 254;
+}
+
+function validateEmailRequest(body: unknown): EmailRequest {
+  if (!body || typeof body !== 'object') {
+    throw new Error('Invalid request body');
+  }
+
+  const { to, subject, type, data } = body as Record<string, unknown>;
+
+  // Validate 'to' field
+  if (!to) {
+    throw new Error('Recipient email(s) required');
+  }
+  
+  const toArray = Array.isArray(to) ? to : [to];
+  if (toArray.length === 0 || toArray.length > 50) {
+    throw new Error('Must have between 1 and 50 recipients');
+  }
+  
+  for (const email of toArray) {
+    if (typeof email !== 'string' || !validateEmail(email)) {
+      throw new Error(`Invalid email address: ${email}`);
+    }
+  }
+
+  // Validate subject
+  if (typeof subject !== 'string' || subject.trim().length === 0) {
+    throw new Error('Subject is required');
+  }
+  if (subject.length > MAX_SUBJECT_LENGTH) {
+    throw new Error(`Subject must be ${MAX_SUBJECT_LENGTH} characters or less`);
+  }
+
+  // Validate type
+  if (!VALID_EMAIL_TYPES.includes(type as typeof VALID_EMAIL_TYPES[number])) {
+    throw new Error(`Type must be one of: ${VALID_EMAIL_TYPES.join(', ')}`);
+  }
+
+  // Validate data object
+  if (!data || typeof data !== 'object') {
+    throw new Error('Data object is required');
+  }
+
+  const dataObj = data as Record<string, unknown>;
+
+  // Validate optional string fields in data
+  const stringFields = ['recipientName', 'eventName', 'eventDate', 'eventTime', 'eventLocation', 'teamName'];
+  for (const field of stringFields) {
+    if (dataObj[field] !== undefined && dataObj[field] !== null) {
+      if (typeof dataObj[field] !== 'string') {
+        throw new Error(`${field} must be a string`);
+      }
+      if ((dataObj[field] as string).length > MAX_NAME_LENGTH) {
+        throw new Error(`${field} must be ${MAX_NAME_LENGTH} characters or less`);
+      }
+    }
+  }
+
+  // Validate message with higher limit
+  if (dataObj.message !== undefined && dataObj.message !== null) {
+    if (typeof dataObj.message !== 'string') {
+      throw new Error('Message must be a string');
+    }
+    if ((dataObj.message as string).length > MAX_MESSAGE_LENGTH) {
+      throw new Error(`Message must be ${MAX_MESSAGE_LENGTH} characters or less`);
+    }
+  }
+
+  return {
+    to: Array.isArray(to) ? to : [to],
+    subject: subject.trim(),
+    type: type as typeof VALID_EMAIL_TYPES[number],
+    data: {
+      recipientName: typeof dataObj.recipientName === 'string' ? dataObj.recipientName.trim() : undefined,
+      eventName: typeof dataObj.eventName === 'string' ? dataObj.eventName.trim() : undefined,
+      eventDate: typeof dataObj.eventDate === 'string' ? dataObj.eventDate.trim() : undefined,
+      eventTime: typeof dataObj.eventTime === 'string' ? dataObj.eventTime.trim() : undefined,
+      eventLocation: typeof dataObj.eventLocation === 'string' ? dataObj.eventLocation.trim() : undefined,
+      teamName: typeof dataObj.teamName === 'string' ? dataObj.teamName.trim() : undefined,
+      message: typeof dataObj.message === 'string' ? dataObj.message.trim() : undefined,
+    },
   };
 }
 
@@ -149,7 +241,9 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    const { to, subject, type, data }: EmailRequest = await req.json();
+    // Parse and validate input
+    const rawBody = await req.json();
+    const { to, subject, type, data } = validateEmailRequest(rawBody);
 
     console.log(`Sending ${type} email to:`, to);
 
@@ -186,12 +280,14 @@ const handler = async (req: Request): Promise<Response> => {
         ...corsHeaders,
       },
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error in send-email function:", error);
+    const errorMessage = error instanceof Error ? error.message : "An unexpected error occurred";
+    const status = errorMessage.includes('required') || errorMessage.includes('must be') || errorMessage.includes('Invalid') ? 400 : 500;
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: errorMessage }),
       {
-        status: 500,
+        status,
         headers: { "Content-Type": "application/json", ...corsHeaders },
       }
     );
