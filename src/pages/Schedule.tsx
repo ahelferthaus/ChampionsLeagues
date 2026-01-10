@@ -1,23 +1,23 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, addMonths, subMonths } from 'date-fns';
 import { useAuth } from '@/hooks/useAuth';
 import { useEvents } from '@/hooks/useEvents';
 import { EventCard } from '@/components/EventCard';
 import { ScheduleImportDialog } from '@/components/ScheduleImportDialog';
 import { LoadDemoDataButton } from '@/components/LoadDemoDataButton';
+import { ScheduleCalendar } from '@/components/ScheduleCalendar';
+import { TeamHeader } from '@/components/TeamHeader';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Trophy, ArrowLeft, Calendar as CalendarIcon, List, Download, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ArrowLeft, Calendar as CalendarIcon, List, Download } from 'lucide-react';
 import { downloadICS, generateEventsICS } from '@/lib/calendar-export';
 
 export default function Schedule() {
   const { user, loading: authLoading } = useAuth();
   const { events, loading, importEvents, deleteEvent, refetch } = useEvents();
   const navigate = useNavigate();
-  const [currentMonth, setCurrentMonth] = useState(new Date());
-  const [viewMode, setViewMode] = useState<'list' | 'calendar'>('list');
+  const [viewMode, setViewMode] = useState<'list' | 'calendar'>('calendar');
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -43,25 +43,16 @@ export default function Schedule() {
     downloadICS(ics, 'team-schedule.ics');
   };
 
-  const monthDays = eachDayOfInterval({
-    start: startOfMonth(currentMonth),
-    end: endOfMonth(currentMonth),
-  });
-
-  const eventsOnDay = (day: Date) => 
-    events.filter(e => isSameDay(new Date(e.start_time), day));
-
   return (
     <div className="min-h-screen bg-background">
       <header className="bg-sidebar text-sidebar-foreground sticky top-0 z-50 border-b border-sidebar-border">
-        <div className="max-w-5xl mx-auto px-4 py-4">
+        <div className="max-w-6xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <Button variant="ghost" size="icon" onClick={() => navigate('/dashboard')}>
                 <ArrowLeft className="h-5 w-5" />
               </Button>
-              <Trophy className="h-8 w-8 text-primary" />
-              <span className="text-xl font-bold">Team Schedule</span>
+              <TeamHeader title="Team Schedule" />
             </div>
             <div className="flex items-center gap-2">
               <LoadDemoDataButton 
@@ -73,14 +64,14 @@ export default function Schedule() {
               />
               <Button variant="outline" onClick={handleExportAll} disabled={events.length === 0}>
                 <Download className="h-4 w-4 mr-2" />
-                Export All
+                Export
               </Button>
             </div>
           </div>
         </div>
       </header>
 
-      <main className="max-w-5xl mx-auto px-4 py-8">
+      <main className="max-w-6xl mx-auto px-4 py-8">
         {/* Summary */}
         <div className="bg-primary/10 rounded-lg p-6 mb-8">
           <div className="flex items-center justify-between">
@@ -95,11 +86,13 @@ export default function Schedule() {
             </div>
             <Tabs value={viewMode} onValueChange={(v) => setViewMode(v as 'list' | 'calendar')}>
               <TabsList>
-                <TabsTrigger value="list">
-                  <List className="h-4 w-4" />
-                </TabsTrigger>
-                <TabsTrigger value="calendar">
+                <TabsTrigger value="calendar" className="gap-2">
                   <CalendarIcon className="h-4 w-4" />
+                  Calendar
+                </TabsTrigger>
+                <TabsTrigger value="list" className="gap-2">
+                  <List className="h-4 w-4" />
+                  List
                 </TabsTrigger>
               </TabsList>
             </Tabs>
@@ -107,64 +100,7 @@ export default function Schedule() {
         </div>
 
         {viewMode === 'calendar' ? (
-          <div className="mb-8">
-            {/* Calendar Header */}
-            <div className="flex items-center justify-between mb-4">
-              <Button variant="ghost" size="icon" onClick={() => setCurrentMonth(subMonths(currentMonth, 1))}>
-                <ChevronLeft className="h-5 w-5" />
-              </Button>
-              <h2 className="text-xl font-semibold">{format(currentMonth, 'MMMM yyyy')}</h2>
-              <Button variant="ghost" size="icon" onClick={() => setCurrentMonth(addMonths(currentMonth, 1))}>
-                <ChevronRight className="h-5 w-5" />
-              </Button>
-            </div>
-
-            {/* Calendar Grid */}
-            <div className="grid grid-cols-7 gap-1">
-              {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
-                <div key={day} className="text-center text-sm font-medium text-muted-foreground py-2">
-                  {day}
-                </div>
-              ))}
-              {/* Padding for first week */}
-              {Array.from({ length: monthDays[0].getDay() }).map((_, i) => (
-                <div key={`pad-${i}`} className="min-h-[80px]" />
-              ))}
-              {/* Days */}
-              {monthDays.map(day => {
-                const dayEvents = eventsOnDay(day);
-                const isToday = isSameDay(day, new Date());
-                
-                return (
-                  <div 
-                    key={day.toISOString()} 
-                    className={`min-h-[80px] border rounded-lg p-1 ${isToday ? 'border-primary bg-primary/5' : 'border-border'}`}
-                  >
-                    <span className={`text-sm ${isToday ? 'font-bold text-primary' : ''}`}>
-                      {format(day, 'd')}
-                    </span>
-                    <div className="space-y-1 mt-1">
-                      {dayEvents.slice(0, 2).map(event => (
-                        <div 
-                          key={event.id}
-                          className={`text-xs p-1 rounded truncate ${
-                            event.event_type === 'game' 
-                              ? 'bg-destructive/10 text-destructive' 
-                              : 'bg-primary/10 text-primary'
-                          }`}
-                        >
-                          {format(new Date(event.start_time), 'h:mm a')} {event.title}
-                        </div>
-                      ))}
-                      {dayEvents.length > 2 && (
-                        <p className="text-xs text-muted-foreground">+{dayEvents.length - 2} more</p>
-                      )}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
+          <ScheduleCalendar events={events} />
         ) : (
           <>
             {/* Upcoming Events */}

@@ -4,8 +4,9 @@ import { useAuth } from '@/hooks/useAuth';
 import { usePayments } from '@/hooks/usePayments';
 import { PaymentsList } from '@/components/PaymentsList';
 import { LoadDemoDataButton } from '@/components/LoadDemoDataButton';
+import { TeamHeader } from '@/components/TeamHeader';
 import { Button } from '@/components/ui/button';
-import { Trophy, ArrowLeft, DollarSign } from 'lucide-react';
+import { ArrowLeft, DollarSign, CreditCard } from 'lucide-react';
 
 export default function Payments() {
   const { user, roles, loading: authLoading } = useAuth();
@@ -47,8 +48,7 @@ export default function Payments() {
               <Button variant="ghost" size="icon" onClick={() => navigate('/dashboard')}>
                 <ArrowLeft className="h-5 w-5" />
               </Button>
-              <Trophy className="h-8 w-8 text-primary" />
-              <span className="text-xl font-bold">Payments</span>
+              <TeamHeader title="Payments" />
             </div>
             <LoadDemoDataButton 
               userId={user.id} 
@@ -61,15 +61,23 @@ export default function Payments() {
       <main className="max-w-4xl mx-auto px-4 py-8">
         {/* Summary Card */}
         <div className="bg-primary/10 rounded-lg p-6 mb-8">
-          <div className="flex items-center gap-4">
-            <div className="bg-primary/20 p-3 rounded-full">
-              <DollarSign className="h-8 w-8 text-primary" />
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="bg-primary/20 p-3 rounded-full">
+                <DollarSign className="h-8 w-8 text-primary" />
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">
+                  {isManager ? 'Total Pending Collection' : 'Total Amount Due'}
+                </p>
+                <p className="text-3xl font-bold">${totalDue.toFixed(2)}</p>
+              </div>
             </div>
-            <div>
-              <p className="text-sm text-muted-foreground">
-                {isManager ? 'Total Pending Collection' : 'Total Amount Due'}
-              </p>
-              <p className="text-3xl font-bold">${totalDue.toFixed(2)}</p>
+            
+            {/* Payment Methods Info */}
+            <div className="hidden sm:flex items-center gap-2 text-sm text-muted-foreground">
+              <CreditCard className="h-4 w-4" />
+              <span>Pay with Card or Venmo</span>
             </div>
           </div>
         </div>
