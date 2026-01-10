@@ -44,15 +44,15 @@ export function MainNavigation() {
   return (
     <header className="bg-sidebar text-sidebar-foreground sticky top-0 z-50 border-b border-sidebar-border">
       <div className="max-w-7xl mx-auto px-4">
-        <div className="flex items-center justify-between h-16">
+        <div className="flex items-center justify-between h-20 py-3">
           {/* Logo and Team Name */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 min-w-[200px]">
             <img 
               src={team.logoUrl} 
               alt={`${team.clubName} logo`}
-              className="h-10 w-10 object-contain"
+              className="h-12 w-12 object-contain"
             />
-            <div className="hidden sm:block">
+            <div>
               <p className="text-sm font-semibold">{team.clubName}</p>
               <p className="text-xs text-sidebar-foreground/70">{team.name}</p>
             </div>
