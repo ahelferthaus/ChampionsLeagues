@@ -10,6 +10,7 @@ import {
   TrendingUp,
   FolderOpen,
   ClipboardCheck,
+  GraduationCap,
   LogOut
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
@@ -23,6 +24,7 @@ const navItems = [
   { path: '/payments', label: 'Payments', icon: DollarSign },
   { path: '/stats', label: 'Stats', icon: TrendingUp },
   { path: '/resources', label: 'Resources', icon: FolderOpen },
+  { path: '/recruiting', label: 'Recruiting', icon: GraduationCap },
 ];
 
 export function MainNavigation() {

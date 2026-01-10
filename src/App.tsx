@@ -16,6 +16,7 @@ import Roster from "./pages/Roster";
 import Stats from "./pages/Stats";
 import Resources from "./pages/Resources";
 import Attendance from "./pages/Attendance";
+import Recruiting from "./pages/Recruiting";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -40,6 +41,7 @@ const App = () => (
               <Route path="/stats" element={<Stats />} />
               <Route path="/resources" element={<Resources />} />
               <Route path="/attendance" element={<Attendance />} />
+              <Route path="/recruiting" element={<Recruiting />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
