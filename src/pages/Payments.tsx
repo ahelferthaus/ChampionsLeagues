@@ -51,8 +51,6 @@ export default function Payments() {
           </div>
           <LoadDemoDataButton userId={user.id} onComplete={refetch} />
         </div>
-
-      <main className="max-w-4xl mx-auto px-4 py-8">
         {/* Summary Card */}
         <div className="bg-primary/10 rounded-lg p-6 mb-8">
           <div className="flex items-center justify-between">
