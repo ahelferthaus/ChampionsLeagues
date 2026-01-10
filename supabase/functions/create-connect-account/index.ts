@@ -7,6 +7,62 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+// Validation constants
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+const MAX_URL_LENGTH = 500;
+const ALLOWED_URL_PATTERNS = [/^https?:\/\//]; // Must be HTTP(S) URLs
+
+interface ConnectAccountRequest {
+  clubId?: string;
+  teamId?: string;
+  refreshUrl?: string;
+  returnUrl?: string;
+}
+
+function validateUrl(url: string | undefined, fieldName: string): string | undefined {
+  if (url === undefined || url === null || url === '') {
+    return undefined;
+  }
+  if (typeof url !== 'string') {
+    throw new Error(`${fieldName} must be a string`);
+  }
+  if (url.length > MAX_URL_LENGTH) {
+    throw new Error(`${fieldName} must be ${MAX_URL_LENGTH} characters or less`);
+  }
+  if (!ALLOWED_URL_PATTERNS.some(pattern => pattern.test(url))) {
+    throw new Error(`${fieldName} must be a valid HTTP(S) URL`);
+  }
+  return url;
+}
+
+function validateRequest(body: unknown): ConnectAccountRequest {
+  if (!body || typeof body !== 'object') {
+    throw new Error('Invalid request body');
+  }
+
+  const { clubId, teamId, refreshUrl, returnUrl } = body as Record<string, unknown>;
+
+  // Validate optional UUIDs
+  if (clubId !== undefined && clubId !== null && clubId !== '') {
+    if (typeof clubId !== 'string' || !UUID_REGEX.test(clubId)) {
+      throw new Error('Club ID must be a valid UUID');
+    }
+  }
+
+  if (teamId !== undefined && teamId !== null && teamId !== '') {
+    if (typeof teamId !== 'string' || !UUID_REGEX.test(teamId)) {
+      throw new Error('Team ID must be a valid UUID');
+    }
+  }
+
+  return {
+    clubId: typeof clubId === 'string' && UUID_REGEX.test(clubId) ? clubId : undefined,
+    teamId: typeof teamId === 'string' && UUID_REGEX.test(teamId) ? teamId : undefined,
+    refreshUrl: validateUrl(refreshUrl as string | undefined, 'Refresh URL'),
+    returnUrl: validateUrl(returnUrl as string | undefined, 'Return URL'),
+  };
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -36,7 +92,10 @@ serve(async (req) => {
     }
 
     const user = userData.user;
-    const { clubId, teamId, refreshUrl, returnUrl } = await req.json();
+    
+    // Parse and validate input
+    const rawBody = await req.json();
+    const { clubId, teamId, refreshUrl, returnUrl } = validateRequest(rawBody);
     const origin = req.headers.get("origin") || "https://lovable.dev";
 
     console.log(`Creating Connect account for user ${user.id}`);

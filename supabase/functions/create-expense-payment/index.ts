@@ -7,6 +7,38 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+// Validation constants
+const VALID_PAYMENT_METHODS = ['card', 'ach'] as const;
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+interface ExpensePaymentRequest {
+  expenseShareId: string;
+  paymentMethod: typeof VALID_PAYMENT_METHODS[number];
+}
+
+function validateRequest(body: unknown): ExpensePaymentRequest {
+  if (!body || typeof body !== 'object') {
+    throw new Error('Invalid request body');
+  }
+
+  const { expenseShareId, paymentMethod } = body as Record<string, unknown>;
+
+  // Validate expenseShareId
+  if (typeof expenseShareId !== 'string' || !UUID_REGEX.test(expenseShareId)) {
+    throw new Error('Valid expense share ID is required');
+  }
+
+  // Validate paymentMethod
+  if (!VALID_PAYMENT_METHODS.includes(paymentMethod as typeof VALID_PAYMENT_METHODS[number])) {
+    throw new Error(`Payment method must be one of: ${VALID_PAYMENT_METHODS.join(', ')}`);
+  }
+
+  return {
+    expenseShareId,
+    paymentMethod: paymentMethod as typeof VALID_PAYMENT_METHODS[number],
+  };
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -36,7 +68,10 @@ serve(async (req) => {
     }
 
     const user = userData.user;
-    const { expenseShareId, paymentMethod } = await req.json();
+    
+    // Parse and validate input
+    const rawBody = await req.json();
+    const { expenseShareId, paymentMethod } = validateRequest(rawBody);
     const origin = req.headers.get("origin") || "https://lovable.dev";
 
     console.log(`Creating payment for expense share ${expenseShareId}, method: ${paymentMethod}`);

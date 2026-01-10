@@ -5,11 +5,63 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// Input validation constants
+const VALID_LEVELS = ['D1', 'D2', 'D3', 'NAIA', 'Junior College', 'NJCAA'];
+const MAX_SPORT_LENGTH = 50;
+const MAX_POSITION_LENGTH = 50;
+const MAX_HIGHLIGHTS_LENGTH = 1000;
+
 interface VideoClipRequest {
   sport: string;
   position: string;
-  level: string; // e.g., "D1", "D2", "D3", "NAIA", "Junior College"
-  highlights?: string; // optional - what the player thinks are their strengths
+  level: string;
+  highlights?: string;
+}
+
+function validateInput(body: unknown): VideoClipRequest {
+  if (!body || typeof body !== 'object') {
+    throw new Error('Invalid request body');
+  }
+
+  const { sport, position, level, highlights } = body as Record<string, unknown>;
+
+  // Validate sport
+  if (typeof sport !== 'string' || sport.trim().length === 0) {
+    throw new Error('Sport is required and must be a non-empty string');
+  }
+  if (sport.length > MAX_SPORT_LENGTH) {
+    throw new Error(`Sport must be ${MAX_SPORT_LENGTH} characters or less`);
+  }
+
+  // Validate position
+  if (typeof position !== 'string' || position.trim().length === 0) {
+    throw new Error('Position is required and must be a non-empty string');
+  }
+  if (position.length > MAX_POSITION_LENGTH) {
+    throw new Error(`Position must be ${MAX_POSITION_LENGTH} characters or less`);
+  }
+
+  // Validate level
+  if (typeof level !== 'string' || !VALID_LEVELS.includes(level)) {
+    throw new Error(`Level must be one of: ${VALID_LEVELS.join(', ')}`);
+  }
+
+  // Validate highlights (optional)
+  if (highlights !== undefined && highlights !== null) {
+    if (typeof highlights !== 'string') {
+      throw new Error('Highlights must be a string');
+    }
+    if (highlights.length > MAX_HIGHLIGHTS_LENGTH) {
+      throw new Error(`Highlights must be ${MAX_HIGHLIGHTS_LENGTH} characters or less`);
+    }
+  }
+
+  return {
+    sport: sport.trim(),
+    position: position.trim(),
+    level,
+    highlights: typeof highlights === 'string' ? highlights.trim() : undefined,
+  };
 }
 
 serve(async (req) => {
@@ -25,7 +77,9 @@ serve(async (req) => {
       throw new Error('AI service not configured');
     }
 
-    const { sport, position, level, highlights }: VideoClipRequest = await req.json();
+    // Parse and validate input
+    const rawBody = await req.json();
+    const { sport, position, level, highlights } = validateInput(rawBody);
     
     console.log(`Video Clip Advisor request: ${sport} - ${position} - ${level}`);
 
@@ -90,11 +144,12 @@ Please be specific to my sport and position, and cite current best practices fro
   } catch (error: unknown) {
     console.error('Error in video-clip-advisor:', error);
     const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred';
+    const status = errorMessage.includes('required') || errorMessage.includes('must be') ? 400 : 500;
     return new Response(
       JSON.stringify({ error: errorMessage }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 500 
+        status 
       }
     );
   }
