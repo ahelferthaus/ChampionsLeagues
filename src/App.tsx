@@ -14,6 +14,8 @@ import Trips from "./pages/Trips";
 import Schedule from "./pages/Schedule";
 import Roster from "./pages/Roster";
 import Stats from "./pages/Stats";
+import Resources from "./pages/Resources";
+import Attendance from "./pages/Attendance";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -36,6 +38,8 @@ const App = () => (
               <Route path="/schedule" element={<Schedule />} />
               <Route path="/roster" element={<Roster />} />
               <Route path="/stats" element={<Stats />} />
+              <Route path="/resources" element={<Resources />} />
+              <Route path="/attendance" element={<Attendance />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
