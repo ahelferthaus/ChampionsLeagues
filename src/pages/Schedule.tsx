@@ -12,9 +12,6 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Trophy, ArrowLeft, Calendar as CalendarIcon, List, Download, ChevronLeft, ChevronRight } from 'lucide-react';
 import { downloadICS, generateEventsICS } from '@/lib/calendar-export';
 
-// Demo team ID for showcase purposes
-const DEMO_TEAM_ID = 'demo-team-id';
-
 export default function Schedule() {
   const { user, loading: authLoading } = useAuth();
   const { events, loading, importEvents, deleteEvent, refetch } = useEvents();
@@ -68,12 +65,10 @@ export default function Schedule() {
             </div>
             <div className="flex items-center gap-2">
               <LoadDemoDataButton 
-                teamId={DEMO_TEAM_ID} 
                 userId={user.id} 
                 onComplete={refetch}
               />
               <ScheduleImportDialog 
-                teamId={DEMO_TEAM_ID}
                 onImport={importEvents}
               />
               <Button variant="outline" onClick={handleExportAll} disabled={events.length === 0}>
@@ -186,8 +181,7 @@ export default function Schedule() {
                   <CardContent className="flex flex-col items-center justify-center py-8 text-center">
                     <CalendarIcon className="h-12 w-12 text-muted-foreground mb-4" />
                     <p className="text-muted-foreground mb-4">No upcoming events</p>
-                <ScheduleImportDialog 
-                      teamId={DEMO_TEAM_ID}
+                    <ScheduleImportDialog 
                       onImport={importEvents}
                       trigger={<Button>Import Schedule</Button>}
                     />

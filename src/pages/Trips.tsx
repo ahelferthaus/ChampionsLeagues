@@ -11,9 +11,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Trophy, ArrowLeft, MapPin, Plane } from 'lucide-react';
 import { downloadICS, generateTripICS } from '@/lib/calendar-export';
 
-// Demo team ID for showcase purposes
-const DEMO_TEAM_ID = 'demo-team-id';
-
 export default function Trips() {
   const { user, loading: authLoading } = useAuth();
   const { trips, loading, createTrip, refetch } = useTrips();
@@ -64,12 +61,10 @@ export default function Trips() {
             </div>
             <div className="flex items-center gap-2">
               <LoadDemoDataButton 
-                teamId={DEMO_TEAM_ID} 
                 userId={user.id} 
                 onComplete={refetch}
               />
               <CreateTripDialog
-                teamId={DEMO_TEAM_ID}
                 userId={user.id}
                 onCreateTrip={createTrip}
               />

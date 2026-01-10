@@ -4,22 +4,22 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Upload, FileText, Calendar } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { parseCSV, generateSampleSchedule, convertToCreateInput } from '@/lib/schedule-import';
 import { CreateEventInput } from '@/hooks/useEvents';
 import { useAuth } from '@/hooks/useAuth';
+import { useToast } from '@/hooks/use-toast';
+import { getOrCreateDemoTeam } from '@/lib/demo-team';
 
 interface ScheduleImportDialogProps {
-  teamId: string;
   onImport: (events: CreateEventInput[]) => void;
   trigger?: React.ReactNode;
 }
 
-export function ScheduleImportDialog({ teamId, onImport, trigger }: ScheduleImportDialogProps) {
+export function ScheduleImportDialog({ onImport, trigger }: ScheduleImportDialogProps) {
   const { user } = useAuth();
+  const { toast } = useToast();
   const [open, setOpen] = useState(false);
   const [csvContent, setCsvContent] = useState('');
   const [importing, setImporting] = useState(false);
@@ -36,11 +36,21 @@ export function ScheduleImportDialog({ teamId, onImport, trigger }: ScheduleImpo
     reader.readAsText(file);
   };
 
-  const handleImportCSV = () => {
+  const handleImportCSV = async () => {
     if (!user || !csvContent.trim()) return;
     
     setImporting(true);
     try {
+      const teamId = await getOrCreateDemoTeam(user.id);
+      if (!teamId) {
+        toast({
+          title: 'Error',
+          description: 'Could not create team. Please try again.',
+          variant: 'destructive',
+        });
+        return;
+      }
+
       const parsed = parseCSV(csvContent);
       const events = convertToCreateInput(parsed, teamId, user.id, 'csv');
       onImport(events);
@@ -51,11 +61,21 @@ export function ScheduleImportDialog({ teamId, onImport, trigger }: ScheduleImpo
     }
   };
 
-  const handleLoadSample = () => {
+  const handleLoadSample = async () => {
     if (!user) return;
     
     setImporting(true);
     try {
+      const teamId = await getOrCreateDemoTeam(user.id);
+      if (!teamId) {
+        toast({
+          title: 'Error',
+          description: 'Could not create team. Please try again.',
+          variant: 'destructive',
+        });
+        return;
+      }
+
       const sample = generateSampleSchedule();
       const events = convertToCreateInput(sample, teamId, user.id, 'demo');
       onImport(events);

@@ -7,9 +7,6 @@ import { LoadDemoDataButton } from '@/components/LoadDemoDataButton';
 import { Button } from '@/components/ui/button';
 import { Trophy, ArrowLeft, DollarSign } from 'lucide-react';
 
-// Demo team ID for showcase purposes
-const DEMO_TEAM_ID = 'demo-team-id';
-
 export default function Payments() {
   const { user, roles, loading: authLoading } = useAuth();
   const { payments, loading, updatePaymentStatus, refetch } = usePayments();
@@ -54,7 +51,6 @@ export default function Payments() {
               <span className="text-xl font-bold">Payments</span>
             </div>
             <LoadDemoDataButton 
-              teamId={DEMO_TEAM_ID} 
               userId={user.id} 
               onComplete={refetch}
             />
