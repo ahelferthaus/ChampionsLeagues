@@ -129,6 +129,63 @@ export type Database = {
           },
         ]
       }
+      connected_accounts: {
+        Row: {
+          account_type: string
+          charges_enabled: boolean | null
+          club_id: string | null
+          created_at: string
+          id: string
+          onboarding_complete: boolean | null
+          payouts_enabled: boolean | null
+          stripe_account_id: string
+          team_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          account_type?: string
+          charges_enabled?: boolean | null
+          club_id?: string | null
+          created_at?: string
+          id?: string
+          onboarding_complete?: boolean | null
+          payouts_enabled?: boolean | null
+          stripe_account_id: string
+          team_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          account_type?: string
+          charges_enabled?: boolean | null
+          club_id?: string | null
+          created_at?: string
+          id?: string
+          onboarding_complete?: boolean | null
+          payouts_enabled?: boolean | null
+          stripe_account_id?: string
+          team_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "connected_accounts_club_id_fkey"
+            columns: ["club_id"]
+            isOneToOne: false
+            referencedRelation: "clubs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "connected_accounts_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       event_attendance: {
         Row: {
           child_member_id: string | null
@@ -245,6 +302,135 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "events_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      expense_shares: {
+        Row: {
+          amount: number
+          child_id: string | null
+          created_at: string
+          expense_id: string
+          id: string
+          notes: string | null
+          paid_at: string | null
+          payment_method: string | null
+          status: string
+          stripe_payment_intent_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          child_id?: string | null
+          created_at?: string
+          expense_id: string
+          id?: string
+          notes?: string | null
+          paid_at?: string | null
+          payment_method?: string | null
+          status?: string
+          stripe_payment_intent_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          child_id?: string | null
+          created_at?: string
+          expense_id?: string
+          id?: string
+          notes?: string | null
+          paid_at?: string | null
+          payment_method?: string | null
+          status?: string
+          stripe_payment_intent_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "expense_shares_child_id_fkey"
+            columns: ["child_id"]
+            isOneToOne: false
+            referencedRelation: "child_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "expense_shares_expense_id_fkey"
+            columns: ["expense_id"]
+            isOneToOne: false
+            referencedRelation: "expenses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      expenses: {
+        Row: {
+          category: string
+          club_id: string | null
+          created_at: string
+          created_by: string
+          description: string | null
+          due_date: string | null
+          expense_date: string
+          id: string
+          receipt_url: string | null
+          split_type: string
+          status: string
+          team_id: string
+          title: string
+          total_amount: number
+          updated_at: string
+        }
+        Insert: {
+          category?: string
+          club_id?: string | null
+          created_at?: string
+          created_by: string
+          description?: string | null
+          due_date?: string | null
+          expense_date?: string
+          id?: string
+          receipt_url?: string | null
+          split_type?: string
+          status?: string
+          team_id: string
+          title: string
+          total_amount: number
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          club_id?: string | null
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          due_date?: string | null
+          expense_date?: string
+          id?: string
+          receipt_url?: string | null
+          split_type?: string
+          status?: string
+          team_id?: string
+          title?: string
+          total_amount?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "expenses_club_id_fkey"
+            columns: ["club_id"]
+            isOneToOne: false
+            referencedRelation: "clubs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "expenses_team_id_fkey"
             columns: ["team_id"]
             isOneToOne: false
             referencedRelation: "teams"
@@ -462,6 +648,7 @@ export type Database = {
           phone: string | null
           updated_at: string
           user_id: string
+          venmo_handle: string | null
         }
         Insert: {
           avatar_url?: string | null
@@ -471,6 +658,7 @@ export type Database = {
           phone?: string | null
           updated_at?: string
           user_id: string
+          venmo_handle?: string | null
         }
         Update: {
           avatar_url?: string | null
@@ -480,6 +668,7 @@ export type Database = {
           phone?: string | null
           updated_at?: string
           user_id?: string
+          venmo_handle?: string | null
         }
         Relationships: []
       }
