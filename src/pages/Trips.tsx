@@ -63,8 +63,6 @@ export default function Trips() {
             <CreateTripDialog userId={user.id} onCreateTrip={createTrip} />
           </div>
         </div>
-
-      <main className="max-w-4xl mx-auto px-4 py-8">
         {/* Summary */}
         <div className="bg-secondary/10 rounded-lg p-6 mb-8">
           <div className="flex items-center gap-4">
