@@ -1,6 +1,11 @@
 import { supabase } from '@/integrations/supabase/client';
 
+// Clear cache on page reload to ensure fresh team creation
 let cachedTeamId: string | null = null;
+
+export function clearDemoTeamCache() {
+  cachedTeamId = null;
+}
 
 export async function getOrCreateDemoTeam(userId: string): Promise<string | null> {
   // Return cached value if we have one
