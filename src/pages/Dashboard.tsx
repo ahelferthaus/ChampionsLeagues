@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { ClubExecutiveDashboard } from '@/components/ClubExecutiveDashboard';
 import { 
   Trophy, 
   Users, 
@@ -143,6 +144,13 @@ export default function Dashboard() {
             <span className="text-sm font-medium">Trips</span>
           </Button>
         </div>
+
+        {/* Club Executive Dashboard - Only for club admins */}
+        {isAdmin && (
+          <div className="mb-8">
+            <ClubExecutiveDashboard />
+          </div>
+        )}
 
         {/* Stats Cards */}
         <div className="grid md:grid-cols-3 gap-6 mb-8">
