@@ -1,15 +1,18 @@
 import { format } from 'date-fns';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { MapPin, Calendar, Clock } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { MapPin, Calendar, Clock, Plane, Download } from 'lucide-react';
 import { Trip } from '@/hooks/useTrips';
 
 interface TripsListProps {
   trips: Trip[];
   loading: boolean;
+  onPlanTrip?: (trip: Trip) => void;
+  onExportTrip?: (trip: Trip) => void;
 }
 
-export function TripsList({ trips, loading }: TripsListProps) {
+export function TripsList({ trips, loading, onPlanTrip, onExportTrip }: TripsListProps) {
   const isUpcoming = (date: string) => new Date(date) > new Date();
 
   if (loading) {
@@ -46,9 +49,11 @@ export function TripsList({ trips, loading }: TripsListProps) {
                   <span>{trip.destination}</span>
                 </div>
               </div>
-              <Badge variant={isUpcoming(trip.departure_date) ? 'default' : 'secondary'}>
-                {isUpcoming(trip.departure_date) ? 'Upcoming' : 'Past'}
-              </Badge>
+              <div className="flex items-center gap-2">
+                <Badge variant={isUpcoming(trip.departure_date) ? 'default' : 'secondary'}>
+                  {isUpcoming(trip.departure_date) ? 'Upcoming' : 'Past'}
+                </Badge>
+              </div>
             </div>
             
             <div className="flex flex-wrap gap-4 text-sm text-muted-foreground mt-3">
@@ -73,6 +78,22 @@ export function TripsList({ trips, loading }: TripsListProps) {
                 {trip.notes}
               </p>
             )}
+
+            {/* Action buttons */}
+            <div className="flex gap-2 mt-4 pt-2 border-t">
+              {isUpcoming(trip.departure_date) && onPlanTrip && (
+                <Button size="sm" onClick={() => onPlanTrip(trip)}>
+                  <Plane className="h-4 w-4 mr-2" />
+                  Plan Trip
+                </Button>
+              )}
+              {onExportTrip && (
+                <Button size="sm" variant="outline" onClick={() => onExportTrip(trip)}>
+                  <Download className="h-4 w-4 mr-2" />
+                  Export to Calendar
+                </Button>
+              )}
+            </div>
           </CardContent>
         </Card>
       ))}
