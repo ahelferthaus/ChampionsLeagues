@@ -21,13 +21,18 @@ export default function Dashboard() {
   const { user, profile, roles, loading } = useAuth();
   const navigate = useNavigate();
 
+  console.log('Dashboard render - loading:', loading, 'user:', !!user, 'profile:', !!profile, 'roles:', roles);
+
   useEffect(() => {
+    console.log('Dashboard useEffect - loading:', loading, 'user:', !!user);
     if (!loading && !user) {
+      console.log('Redirecting to /auth');
       navigate('/auth');
     }
   }, [user, loading, navigate]);
 
   if (loading) {
+    console.log('Dashboard showing loading state');
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="animate-pulse text-primary text-xl font-semibold">Loading...</div>
@@ -35,7 +40,12 @@ export default function Dashboard() {
     );
   }
 
-  if (!user) return null;
+  if (!user) {
+    console.log('Dashboard - no user, returning null');
+    return null;
+  }
+
+  console.log('Dashboard rendering main content');
 
   const isAdmin = roles.includes('club_admin');
   const isManager = roles.includes('team_manager');
