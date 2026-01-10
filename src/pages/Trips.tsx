@@ -6,10 +6,10 @@ import { TripsList } from '@/components/TripsList';
 import { TripPlanner } from '@/components/TripPlanner';
 import { CreateTripDialog } from '@/components/CreateTripDialog';
 import { LoadDemoDataButton } from '@/components/LoadDemoDataButton';
-import { TeamHeader } from '@/components/TeamHeader';
+import { MainNavigation } from '@/components/MainNavigation';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { ArrowLeft, Plane, MapPin } from 'lucide-react';
+import { Plane, MapPin } from 'lucide-react';
 import { downloadICS, generateTripICS } from '@/lib/calendar-export';
 
 export default function Trips() {
@@ -50,28 +50,19 @@ export default function Trips() {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="bg-sidebar text-sidebar-foreground sticky top-0 z-50 border-b border-sidebar-border">
-        <div className="max-w-4xl mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <Button variant="ghost" size="icon" onClick={() => navigate('/dashboard')}>
-                <ArrowLeft className="h-5 w-5" />
-              </Button>
-              <TeamHeader title="Trips & Travel" />
-            </div>
-            <div className="flex items-center gap-2">
-              <LoadDemoDataButton 
-                userId={user.id} 
-                onComplete={refetch}
-              />
-              <CreateTripDialog
-                userId={user.id}
-                onCreateTrip={createTrip}
-              />
-            </div>
+      <MainNavigation />
+
+      <main className="max-w-4xl mx-auto px-4 py-8">
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h1 className="text-3xl font-bold text-foreground">Trips & Travel</h1>
+            <p className="text-muted-foreground">Plan and manage team travel</p>
+          </div>
+          <div className="flex items-center gap-2">
+            <LoadDemoDataButton userId={user.id} onComplete={refetch} />
+            <CreateTripDialog userId={user.id} onCreateTrip={createTrip} />
           </div>
         </div>
-      </header>
 
       <main className="max-w-4xl mx-auto px-4 py-8">
         {/* Summary */}
