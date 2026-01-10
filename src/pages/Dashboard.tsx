@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { MainNavigation } from '@/components/MainNavigation';
+import { WelcomeHero } from '@/components/WelcomeHero';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ClubExecutiveDashboard } from '@/components/ClubExecutiveDashboard';
@@ -39,24 +40,23 @@ export default function Dashboard() {
   const isAdmin = roles.includes('club_admin');
   const isManager = roles.includes('team_manager');
 
+  // Get primary sport from profile (cast to access the new column)
+  const primarySport = (profile as any)?.primary_sport || null;
+
   return (
     <div className="min-h-screen bg-background">
       <MainNavigation />
 
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 py-8">
+      {/* Main Content with extra top padding */}
+      <main className="max-w-7xl mx-auto px-4 pt-6 pb-8">
         {/* Team Header with Logo */}
         <TeamHeader />
         
-        {/* Welcome Section */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-foreground mb-2">
-            Welcome back, {profile?.full_name?.split(' ')[0] || 'there'}!
-          </h1>
-          <p className="text-muted-foreground">
-            Here's what's happening with your teams today.
-          </p>
-        </div>
+        {/* Welcome Hero with Sport Visual */}
+        <WelcomeHero 
+          userName={profile?.full_name?.split(' ')[0]} 
+          sport={primarySport}
+        />
 
         {/* Quick Actions */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
