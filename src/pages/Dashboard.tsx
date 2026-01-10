@@ -192,7 +192,7 @@ export default function Dashboard() {
             <CardDescription className="max-w-md mx-auto">
               {isAdmin || isManager 
                 ? "Create your first club to start managing teams, schedules, and finances."
-                : "You haven't been added to any teams yet. Ask your team manager for an invitation."
+                : <span className="text-primary italic">You haven't been added to any teams yet. Ask your team manager for an invitation.</span>
               }
             </CardDescription>
           </CardHeader>
