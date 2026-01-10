@@ -3,6 +3,7 @@ import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 
 type AppRole = 'club_admin' | 'team_manager' | 'parent' | 'player';
+type SafeSignupRole = 'parent'; // Only parent can be self-assigned
 
 interface UserProfile {
   id: string;
@@ -22,7 +23,7 @@ interface AuthContextType {
   profile: UserProfile | null;
   roles: AppRole[];
   loading: boolean;
-  signUp: (email: string, password: string, fullName: string, role: AppRole) => Promise<{ error: Error | null }>;
+  signUp: (email: string, password: string, fullName: string, role: SafeSignupRole) => Promise<{ error: Error | null }>;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
 }
@@ -95,7 +96,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const signUp = async (email: string, password: string, fullName: string, role: AppRole) => {
+  // Only 'parent' role can be self-assigned during signup (COPPA + security compliance)
+  const signUp = async (email: string, password: string, fullName: string, role: SafeSignupRole) => {
     try {
       const redirectUrl = `${window.location.origin}/`;
       

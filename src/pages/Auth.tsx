@@ -6,7 +6,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { Trophy, Users, Calendar, DollarSign } from 'lucide-react';
 import { z } from 'zod';
@@ -15,20 +14,23 @@ const emailSchema = z.string().email('Please enter a valid email address');
 const passwordSchema = z.string().min(6, 'Password must be at least 6 characters');
 const nameSchema = z.string().min(2, 'Name must be at least 2 characters');
 
-type AppRole = 'club_admin' | 'team_manager' | 'parent' | 'player';
+// Only safe roles that users can self-assign during signup
+// Club admin and team manager roles must be assigned by existing admins
+// Player accounts don't exist - children are managed by parents (COPPA compliance)
+type SignupRole = 'parent';
 
-const roleLabels: Record<AppRole, { label: string; description: string }> = {
-  club_admin: { label: 'Club Administrator', description: 'Manage your entire club and all teams' },
-  team_manager: { label: 'Team Manager / Coach', description: 'Manage a specific team, schedule, and roster' },
-  parent: { label: 'Parent / Guardian', description: 'View schedules, make payments, access team info' },
-  player: { label: 'Player', description: 'View your schedule, team info, and stats' },
+const signupRoleLabels: Record<SignupRole, { label: string; description: string }> = {
+  parent: { label: 'Parent / Guardian', description: 'Manage your children\'s teams, payments, and schedules' },
 };
+
+// Info message for users who want other roles
+const roleInfoMessage = "Team managers and club admins are assigned by existing administrators. Players under 13 don't need accounts - parents manage their profiles.";
 
 export default function Auth() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
-  const [role, setRole] = useState<AppRole>('parent');
+  const [role] = useState<SignupRole>('parent'); // Only parent role allowed for self-signup
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<{ email?: string; password?: string; name?: string }>({});
   
@@ -248,24 +250,17 @@ export default function Auth() {
                     {errors.password && <p className="text-sm text-destructive">{errors.password}</p>}
                   </div>
                   
+                  {/* Role is now fixed to 'parent' - no selection needed */}
                   <div className="space-y-2">
-                    <Label htmlFor="signup-role">I am a...</Label>
-                    <Select value={role} onValueChange={(value) => setRole(value as AppRole)}>
-                      <SelectTrigger id="signup-role">
-                        <SelectValue placeholder="Select your role" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {(Object.keys(roleLabels) as AppRole[]).map((key) => (
-                          <SelectItem key={key} value={key}>
-                            <div className="flex flex-col items-start">
-                              <span className="font-medium">{roleLabels[key].label}</span>
-                            </div>
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <p className="text-sm text-muted-foreground">
-                      {roleLabels[role].description}
+                    <Label>Account Type</Label>
+                    <div className="p-3 bg-muted rounded-md border border-border">
+                      <span className="font-medium text-foreground">{signupRoleLabels.parent.label}</span>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        {signupRoleLabels.parent.description}
+                      </p>
+                    </div>
+                    <p className="text-xs text-muted-foreground italic">
+                      {roleInfoMessage}
                     </p>
                   </div>
                   

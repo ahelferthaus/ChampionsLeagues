@@ -14,6 +14,45 @@ export type Database = {
   }
   public: {
     Tables: {
+      child_profiles: {
+        Row: {
+          created_at: string
+          date_of_birth: string | null
+          emergency_contact: string | null
+          full_name: string
+          id: string
+          jersey_number: string | null
+          medical_notes: string | null
+          parent_user_id: string
+          position: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          date_of_birth?: string | null
+          emergency_contact?: string | null
+          full_name: string
+          id?: string
+          jersey_number?: string | null
+          medical_notes?: string | null
+          parent_user_id: string
+          position?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          date_of_birth?: string | null
+          emergency_contact?: string | null
+          full_name?: string
+          id?: string
+          jersey_number?: string | null
+          medical_notes?: string | null
+          parent_user_id?: string
+          position?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       club_admins: {
         Row: {
           club_id: string
@@ -235,6 +274,47 @@ export type Database = {
           },
         ]
       }
+      team_child_members: {
+        Row: {
+          child_id: string
+          id: string
+          is_active: boolean | null
+          jersey_number: string | null
+          joined_at: string
+          position: string | null
+          role: string
+          team_id: string
+        }
+        Insert: {
+          child_id: string
+          id?: string
+          is_active?: boolean | null
+          jersey_number?: string | null
+          joined_at?: string
+          position?: string | null
+          role?: string
+          team_id: string
+        }
+        Update: {
+          child_id?: string
+          id?: string
+          is_active?: boolean | null
+          jersey_number?: string | null
+          joined_at?: string
+          position?: string | null
+          role?: string
+          team_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "team_child_members_child_id_fkey"
+            columns: ["child_id"]
+            isOneToOne: false
+            referencedRelation: "child_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       team_members: {
         Row: {
           id: string
@@ -405,6 +485,10 @@ export type Database = {
       }
       is_club_admin: {
         Args: { _club_id: string; _user_id: string }
+        Returns: boolean
+      }
+      is_parent_of: {
+        Args: { _child_id: string; _user_id: string }
         Returns: boolean
       }
       is_team_manager: {
