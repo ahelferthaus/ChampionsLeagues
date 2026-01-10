@@ -4,6 +4,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ClubExecutiveDashboard } from '@/components/ClubExecutiveDashboard';
+import { TeamHeader } from '@/components/TeamHeader';
 import { 
   Trophy, 
   Users, 
@@ -85,6 +86,9 @@ export default function Dashboard() {
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 py-8">
+        {/* Team Header with Logo */}
+        <TeamHeader />
+        
         {/* Welcome Section */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-foreground mb-2">
