@@ -121,14 +121,16 @@ function generateEmailHtml(type: EmailRequest["type"], data: EmailRequest["data"
       `;
 
     case "custom":
-      return data.customHtml || `
+      // Security: customHtml is no longer supported to prevent XSS/phishing attacks
+      // Only use predefined templates with sanitized data
+      return `
         <!DOCTYPE html>
         <html>
         <head>${styles}</head>
         <body>
           <div class="container">
             <div class="content">
-              <p>${data.message || "You have a new message."}</p>
+              <p>${(data.message || "You have a new message.").replace(/</g, '&lt;').replace(/>/g, '&gt;')}</p>
             </div>
           </div>
         </body>
