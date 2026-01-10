@@ -6,9 +6,12 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { Trophy, Users, Calendar, DollarSign } from 'lucide-react';
 import { z } from 'zod';
+import { SPORTS_LIST } from '@/components/SportIcons';
+import { supabase } from '@/integrations/supabase/client';
 
 const emailSchema = z.string().email('Please enter a valid email address');
 const passwordSchema = z.string().min(6, 'Password must be at least 6 characters');
@@ -30,6 +33,7 @@ export default function Auth() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
+  const [primarySport, setPrimarySport] = useState('');
   const [role] = useState<SignupRole>('parent'); // Only parent role allowed for self-signup
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<{ email?: string; password?: string; name?: string }>({});
@@ -92,10 +96,10 @@ export default function Auth() {
     if (!validateForm(true)) return;
     
     setIsLoading(true);
-    const { error } = await signUp(email, password, fullName, role);
-    setIsLoading(false);
-
+    const { error, data } = await signUp(email, password, fullName, role);
+    
     if (error) {
+      setIsLoading(false);
       let message = error.message;
       if (error.message.includes('already registered')) {
         message = 'This email is already registered. Please sign in instead.';
@@ -106,6 +110,15 @@ export default function Auth() {
         description: message,
       });
     } else {
+      // Update profile with primary sport
+      if (primarySport && data?.user) {
+        await supabase
+          .from('profiles')
+          .update({ primary_sport: primarySport })
+          .eq('user_id', data.user.id);
+      }
+      
+      setIsLoading(false);
       toast({
         title: 'Account created!',
         description: 'Welcome to Champions. You are now signed in.',
@@ -248,6 +261,29 @@ export default function Auth() {
                       className={errors.password ? 'border-destructive' : ''}
                     />
                     {errors.password && <p className="text-sm text-destructive">{errors.password}</p>}
+                  </div>
+                  
+                  {/* Sport Selection */}
+                  <div className="space-y-2">
+                    <Label htmlFor="signup-sport">Primary Sport</Label>
+                    <Select value={primarySport} onValueChange={setPrimarySport}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select your child's primary sport" />
+                      </SelectTrigger>
+                      <SelectContent className="max-h-60">
+                        {SPORTS_LIST.map((sport) => (
+                          <SelectItem key={sport.value} value={sport.value}>
+                            <span className="flex items-center gap-2">
+                              <span>{sport.icon}</span>
+                              <span>{sport.label}</span>
+                            </span>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <p className="text-xs text-muted-foreground">
+                      This helps personalize your experience
+                    </p>
                   </div>
                   
                   {/* Role is now fixed to 'parent' - no selection needed */}

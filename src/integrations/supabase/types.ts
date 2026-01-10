@@ -646,6 +646,7 @@ export type Database = {
           full_name: string
           id: string
           phone: string | null
+          primary_sport: string | null
           updated_at: string
           user_id: string
           venmo_handle: string | null
@@ -656,6 +657,7 @@ export type Database = {
           full_name: string
           id?: string
           phone?: string | null
+          primary_sport?: string | null
           updated_at?: string
           user_id: string
           venmo_handle?: string | null
@@ -666,6 +668,7 @@ export type Database = {
           full_name?: string
           id?: string
           phone?: string | null
+          primary_sport?: string | null
           updated_at?: string
           user_id?: string
           venmo_handle?: string | null
