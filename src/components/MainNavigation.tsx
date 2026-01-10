@@ -8,6 +8,8 @@ import {
   DollarSign, 
   Users, 
   TrendingUp,
+  FolderOpen,
+  ClipboardCheck,
   LogOut
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
@@ -15,10 +17,12 @@ import { useAuth } from '@/hooks/useAuth';
 const navItems = [
   { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { path: '/schedule', label: 'Schedule', icon: Calendar },
+  { path: '/attendance', label: 'Attendance', icon: ClipboardCheck },
+  { path: '/roster', label: 'Roster', icon: Users },
   { path: '/trips', label: 'Trips', icon: Plane },
   { path: '/payments', label: 'Payments', icon: DollarSign },
-  { path: '/roster', label: 'Roster', icon: Users },
   { path: '/stats', label: 'Stats', icon: TrendingUp },
+  { path: '/resources', label: 'Resources', icon: FolderOpen },
 ];
 
 export function MainNavigation() {

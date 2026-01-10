@@ -129,6 +129,67 @@ export type Database = {
           },
         ]
       }
+      event_attendance: {
+        Row: {
+          child_member_id: string | null
+          created_at: string
+          event_id: string
+          id: string
+          marked_at: string | null
+          marked_by: string | null
+          notes: string | null
+          status: string
+          team_member_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          child_member_id?: string | null
+          created_at?: string
+          event_id: string
+          id?: string
+          marked_at?: string | null
+          marked_by?: string | null
+          notes?: string | null
+          status?: string
+          team_member_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          child_member_id?: string | null
+          created_at?: string
+          event_id?: string
+          id?: string
+          marked_at?: string | null
+          marked_by?: string | null
+          notes?: string | null
+          status?: string
+          team_member_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_attendance_child_member_id_fkey"
+            columns: ["child_member_id"]
+            isOneToOne: false
+            referencedRelation: "team_child_members"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_attendance_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_attendance_team_member_id_fkey"
+            columns: ["team_member_id"]
+            isOneToOne: false
+            referencedRelation: "team_members"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       events: {
         Row: {
           created_at: string
@@ -538,6 +599,62 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "team_members_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      team_resources: {
+        Row: {
+          category: string | null
+          created_at: string
+          created_by: string
+          description: string | null
+          icon: string | null
+          id: string
+          is_pinned: boolean | null
+          resource_type: string
+          sort_order: number | null
+          team_id: string
+          title: string
+          updated_at: string
+          url: string
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          created_by: string
+          description?: string | null
+          icon?: string | null
+          id?: string
+          is_pinned?: boolean | null
+          resource_type: string
+          sort_order?: number | null
+          team_id: string
+          title: string
+          updated_at?: string
+          url: string
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          icon?: string | null
+          id?: string
+          is_pinned?: boolean | null
+          resource_type?: string
+          sort_order?: number | null
+          team_id?: string
+          title?: string
+          updated_at?: string
+          url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "team_resources_team_id_fkey"
             columns: ["team_id"]
             isOneToOne: false
             referencedRelation: "teams"
