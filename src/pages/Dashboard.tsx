@@ -121,6 +121,7 @@ export default function Dashboard() {
           <Button 
             variant="outline" 
             className="h-auto py-4 flex flex-col items-center gap-2 border-primary/30 hover:bg-primary/5"
+            onClick={() => navigate('/schedule')}
           >
             <Calendar className="h-6 w-6 text-primary" />
             <span className="text-sm font-medium">View Schedule</span>

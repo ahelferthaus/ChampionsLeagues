@@ -6,9 +6,10 @@ import { TripsList } from '@/components/TripsList';
 import { TripPlanner } from '@/components/TripPlanner';
 import { CreateTripDialog } from '@/components/CreateTripDialog';
 import { LoadDemoDataButton } from '@/components/LoadDemoDataButton';
+import { TeamHeader } from '@/components/TeamHeader';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Trophy, ArrowLeft, MapPin, Plane } from 'lucide-react';
+import { ArrowLeft, Plane, MapPin } from 'lucide-react';
 import { downloadICS, generateTripICS } from '@/lib/calendar-export';
 
 export default function Trips() {
@@ -56,8 +57,7 @@ export default function Trips() {
               <Button variant="ghost" size="icon" onClick={() => navigate('/dashboard')}>
                 <ArrowLeft className="h-5 w-5" />
               </Button>
-              <Trophy className="h-8 w-8 text-primary" />
-              <span className="text-xl font-bold">Trips & Travel</span>
+              <TeamHeader title="Trips & Travel" />
             </div>
             <div className="flex items-center gap-2">
               <LoadDemoDataButton 
