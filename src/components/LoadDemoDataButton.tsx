@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { generateDemoEvents, generateDemoTrips, generateDemoPayments } from '@/lib/demo-data';
-import { getOrCreateDemoTeam } from '@/lib/demo-team';
+import { getOrCreateDemoTeam, clearDemoTeamCache } from '@/lib/demo-team';
 import { Sparkles } from 'lucide-react';
 
 interface LoadDemoDataButtonProps {
@@ -19,6 +19,9 @@ export function LoadDemoDataButton({ userId, onComplete }: LoadDemoDataButtonPro
     setLoading(true);
 
     try {
+      // Clear cache to ensure fresh team creation with proper permissions
+      clearDemoTeamCache();
+      
       // Get or create a real team with valid UUID
       const teamId = await getOrCreateDemoTeam(userId);
       
