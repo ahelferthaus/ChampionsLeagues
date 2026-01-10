@@ -8,3 +8,12 @@ verify_jwt = false
 
 [functions.create-recruiting-payment]
 verify_jwt = false
+
+[functions.create-connect-account]
+verify_jwt = false
+
+[functions.create-expense-payment]
+verify_jwt = false
+
+[functions.check-connect-status]
+verify_jwt = false
