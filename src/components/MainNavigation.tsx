@@ -15,6 +15,7 @@ import {
   LogOut
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
+import { ProfileSettingsDialog } from '@/components/ProfileSettingsDialog';
 
 const navItems = [
   { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -81,16 +82,19 @@ export function MainNavigation() {
             })}
           </nav>
 
-          {/* Sign Out */}
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            onClick={handleSignOut}
-            className="text-sidebar-foreground/80 hover:text-sidebar-foreground hover:bg-sidebar-accent/20"
-          >
-            <LogOut className="h-4 w-4" />
-            <span className="hidden md:inline ml-2">Sign Out</span>
-          </Button>
+          {/* Settings & Sign Out */}
+          <div className="flex items-center gap-1">
+            <ProfileSettingsDialog />
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={handleSignOut}
+              className="text-sidebar-foreground/80 hover:text-sidebar-foreground hover:bg-sidebar-accent/20"
+            >
+              <LogOut className="h-4 w-4" />
+              <span className="hidden md:inline ml-2">Sign Out</span>
+            </Button>
+          </div>
         </div>
       </div>
     </header>
