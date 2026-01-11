@@ -7,6 +7,10 @@ interface TeamHeaderProps {
 export function TeamHeader({ title }: TeamHeaderProps = {}) {
   const { team } = useTeam();
   
+  if (!team) {
+    return null;
+  }
+  
   return (
     <div className="flex items-center gap-4 mb-4 mt-2 pt-2">
       <img 
