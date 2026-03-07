@@ -23,7 +23,8 @@ import {
   UserCircle,
   Check,
   ChevronDown,
-  Plus
+  Plus,
+  FileText
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 
