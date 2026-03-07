@@ -1,73 +1,110 @@
-# Welcome to your Lovable project
+# Champions — Youth Sports Team Management Platform
 
-## Project info
+[![Built with Lovable](https://img.shields.io/badge/Built%20with-Lovable-ff69b4)](https://lovable.dev)
+[![Live Demo](https://img.shields.io/badge/Live-championsleagues.lovable.app-00c896)](https://championsleagues.lovable.app)
 
-**URL**: championsleagues.lovable.app
+**Champions** is an all-in-one platform for youth sports team management — handling finances, trip planning, scheduling, communication, and more so coaches and parents can focus on the game.
 
-## How can I edit this code?
+---
 
-There are several ways of editing your application.
+## 🏆 What It Does
 
-**Use Lovable**
+Youth sports clubs manage thousands of teams that travel to tournaments across the country. Champions replaces the spreadsheets, Venmo requests, and group texts with a single platform:
 
-Simply visit the championsleagues.lovable.app and start prompting.
+- **💰 Financial Management** — Track expenses, split costs, collect payments via Stripe Connect
+- **✈️ Trip Planning** — Coordinate travel logistics, itineraries, and RSVPs for tournaments
+- **📅 Team Scheduling** — Manage practices, games, and tournaments with calendar sync
+- **📋 Roster Management** — Player profiles, jersey numbers, positions, and parent/child relationships
+- **📊 Attendance Tracking** — Track who shows up to practices and games
+- **💬 Team Messaging** — In-app messaging with email notifications
+- **📈 Player & Team Stats** — Goals, assists, cards, minutes played, and team standings
+- **🎥 Video & Recruiting** — Video links and an AI-powered clip advisor for recruiting highlights
+- **📁 Team Resources** — Shared links, documents, and pinned resources
+- **🏢 Club Administration** — Multi-team club management with league hierarchies
 
-Changes made via Lovable will be committed automatically to this repo.
+## 🎯 Target Market
 
-**Use your preferred IDE**
+- **Youth Soccer**: ~6,000 clubs, 10,000+ travel-competitive teams (ECNL/ECRL, MLS NEXT, GA, etc.)
+- **Multi-Sport**: Basketball (AAU), Baseball (Perfect Game), Hockey (AAA), Volleyball, Lacrosse, Swimming, and more
+- **Users**: Club administrators, team managers/coaches, parents, and players
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+## 🛠️ Tech Stack
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+| Layer | Technology |
+|-------|-----------|
+| **Frontend** | React 18, TypeScript, Vite |
+| **Styling** | Tailwind CSS, shadcn/ui |
+| **Backend** | Lovable Cloud (Supabase) — Auth, Database, Edge Functions, Storage |
+| **Payments** | Stripe Connect Express |
+| **AI** | Lovable AI (video clip advisor) |
+| **State** | TanStack React Query |
+| **Routing** | React Router v6 |
 
-Follow these steps:
+## 📁 Project Structure
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
+```
+src/
+├── components/        # Reusable UI components
+│   └── ui/           # shadcn/ui primitives
+├── contexts/         # React context providers (TeamContext)
+├── hooks/            # Custom hooks (auth, events, expenses, roster, etc.)
+├── integrations/     # Supabase client & types
+├── lib/              # Utilities, demo data, calendar export
+├── pages/            # Route-level page components
+└── assets/           # Static images
+
+supabase/
+├── functions/        # Edge functions (Stripe, email, AI)
+├── migrations/       # Database migrations
+└── config.toml       # Supabase configuration
+
+public/
+└── docs/             # Platform specification document
+```
+
+## 🗃️ Database Schema
+
+Key tables: `clubs`, `teams`, `team_members`, `events`, `event_attendance`, `expenses`, `expense_shares`, `payments`, `trips`, `trip_itinerary`, `messages`, `player_stats`, `video_links`, `team_resources`, `child_profiles`, `profiles`, `seasons`, `leagues`
+
+Role-based access with RLS policies using roles: `club_admin`, `team_manager`, `parent`, `player`
+
+## 🚀 Getting Started
+
+```bash
+# Clone the repository
 git clone <YOUR_GIT_URL>
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+# Install dependencies
+npm install
 
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
+# Start development server
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+The app will be available at `http://localhost:5173`.
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+## 📖 Documentation
 
-**Use GitHub Codespaces**
+A comprehensive platform specification (BRD, FRD, user stories, architecture, roadmap) is available at `/docs` in the running app, or directly at [`public/docs/Champions_Platform_Specification.md`](public/docs/Champions_Platform_Specification.md).
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## 📊 Current Status
 
-## What technologies are used for this project?
+**Stage: MVP / Pre-Production**
 
-This project is built with:
+| Module | Status |
+|--------|--------|
+| Authentication | ✅ Working |
+| Club & Team Creation | ✅ Working |
+| Expense Management (Stripe) | ✅ Working |
+| Profile Management | ✅ Working |
+| Schedule/Events | ⚠️ Partial |
+| Roster Management | ⚠️ Partial |
+| Trip Planning | ⚠️ Partial |
+| Attendance Tracking | ⚠️ Partial |
+| Messaging | ⚠️ Partial |
+| Video/Recruiting | ⚠️ Partial |
+| Player & Team Stats | ⚠️ Partial |
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+## 📄 License
 
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+Private — All rights reserved.
