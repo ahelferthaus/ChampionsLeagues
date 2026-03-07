@@ -23,7 +23,8 @@ import {
   UserCircle,
   Check,
   ChevronDown,
-  Plus
+  Plus,
+  FileText
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -38,6 +39,7 @@ const navItems = [
   { path: '/stats', label: 'Stats', icon: TrendingUp },
   { path: '/resources', label: 'Resources', icon: FolderOpen },
   { path: '/recruiting', label: 'Recruiting', icon: GraduationCap },
+  { path: '/docs', label: 'Docs', icon: FileText },
 ];
 
 export function MainNavigation() {
