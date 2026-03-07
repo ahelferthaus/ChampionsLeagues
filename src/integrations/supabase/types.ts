@@ -14,15 +14,48 @@ export type Database = {
   }
   public: {
     Tables: {
+      child_medical_info: {
+        Row: {
+          child_id: string
+          created_at: string
+          emergency_contact: string | null
+          id: string
+          medical_notes: string | null
+          updated_at: string
+        }
+        Insert: {
+          child_id: string
+          created_at?: string
+          emergency_contact?: string | null
+          id?: string
+          medical_notes?: string | null
+          updated_at?: string
+        }
+        Update: {
+          child_id?: string
+          created_at?: string
+          emergency_contact?: string | null
+          id?: string
+          medical_notes?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "child_medical_info_child_id_fkey"
+            columns: ["child_id"]
+            isOneToOne: true
+            referencedRelation: "child_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       child_profiles: {
         Row: {
           created_at: string
           date_of_birth: string | null
-          emergency_contact: string | null
           full_name: string
           id: string
           jersey_number: string | null
-          medical_notes: string | null
           parent_user_id: string
           position: string | null
           updated_at: string
@@ -30,11 +63,9 @@ export type Database = {
         Insert: {
           created_at?: string
           date_of_birth?: string | null
-          emergency_contact?: string | null
           full_name: string
           id?: string
           jersey_number?: string | null
-          medical_notes?: string | null
           parent_user_id: string
           position?: string | null
           updated_at?: string
@@ -42,11 +73,9 @@ export type Database = {
         Update: {
           created_at?: string
           date_of_birth?: string | null
-          emergency_contact?: string | null
           full_name?: string
           id?: string
           jersey_number?: string | null
-          medical_notes?: string | null
           parent_user_id?: string
           position?: string | null
           updated_at?: string
@@ -1146,6 +1175,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_team_member_profiles: {
+        Args: { _team_id: string }
+        Returns: {
+          avatar_url: string
+          full_name: string
+          user_id: string
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
