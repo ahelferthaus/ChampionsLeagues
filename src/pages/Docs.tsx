@@ -39,7 +39,7 @@ const Docs = () => {
         </div>
       </div>
 
-      <article className="max-w-4xl mx-auto px-6 py-10 prose prose-neutral dark:prose-invert prose-headings:scroll-mt-20 prose-table:text-sm prose-th:bg-muted prose-th:px-3 prose-th:py-2 prose-td:px-3 prose-td:py-2 prose-td:border-t prose-td:border-border prose-th:border-b prose-th:border-border prose-th:text-left prose-a:text-primary prose-code:bg-muted prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:text-sm prose-pre:bg-muted prose-pre:border prose-pre:border-border max-w-none">
+      <article className="max-w-4xl mx-auto px-6 py-10 prose prose-neutral dark:prose-invert prose-headings:scroll-mt-20 prose-table:text-sm prose-th:bg-muted prose-th:px-3 prose-th:py-2 prose-td:px-3 prose-td:py-2 prose-td:border-t prose-td:border-border prose-th:border-b prose-th:border-border prose-th:text-left prose-a:text-primary prose-code:bg-muted prose-code:text-foreground prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:text-sm prose-pre:bg-muted prose-pre:text-foreground prose-pre:border prose-pre:border-border max-w-none">
         <ReactMarkdown remarkPlugins={[remarkGfm]}>{content}</ReactMarkdown>
       </article>
     </div>
