@@ -2,7 +2,7 @@ import { format } from 'date-fns';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { MapPin, Calendar, Clock, Plane, Download } from 'lucide-react';
+import { MapPin, Calendar, Clock, Plane, Download, Users } from 'lucide-react';
 import { Trip } from '@/hooks/useTrips';
 
 interface TripsListProps {
@@ -10,9 +10,10 @@ interface TripsListProps {
   loading: boolean;
   onPlanTrip?: (trip: Trip) => void;
   onExportTrip?: (trip: Trip) => void;
+  onManageRoster?: (trip: Trip) => void;
 }
 
-export function TripsList({ trips, loading, onPlanTrip, onExportTrip }: TripsListProps) {
+export function TripsList({ trips, loading, onPlanTrip, onExportTrip, onManageRoster }: TripsListProps) {
   const isUpcoming = (date: string) => new Date(date) > new Date();
 
   if (loading) {
@@ -80,7 +81,13 @@ export function TripsList({ trips, loading, onPlanTrip, onExportTrip }: TripsLis
             )}
 
             {/* Action buttons */}
-            <div className="flex gap-2 mt-4 pt-2 border-t">
+            <div className="flex gap-2 mt-4 pt-2 border-t flex-wrap">
+              {onManageRoster && (
+                <Button size="sm" variant="outline" onClick={() => onManageRoster(trip)}>
+                  <Users className="h-4 w-4 mr-2" />
+                  Roster
+                </Button>
+              )}
               {isUpcoming(trip.departure_date) && onPlanTrip && (
                 <Button size="sm" onClick={() => onPlanTrip(trip)}>
                   <Plane className="h-4 w-4 mr-2" />

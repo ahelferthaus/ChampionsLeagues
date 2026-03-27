@@ -2,22 +2,26 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useTrips, Trip } from '@/hooks/useTrips';
+import { useTeam } from '@/contexts/TeamContext';
 import { TripsList } from '@/components/TripsList';
 import { TripPlanner } from '@/components/TripPlanner';
+import { TripRosterPanel } from '@/components/TripRosterPanel';
 import { CreateTripDialog } from '@/components/CreateTripDialog';
 import { LoadDemoDataButton } from '@/components/LoadDemoDataButton';
 import { MainNavigation } from '@/components/MainNavigation';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Plane, MapPin } from 'lucide-react';
+import { Plane, MapPin, Users } from 'lucide-react';
 import { downloadICS, generateTripICS } from '@/lib/calendar-export';
 
 export default function Trips() {
   const { user, loading: authLoading } = useAuth();
   const { trips, loading, createTrip, refetch } = useTrips();
+  const { team } = useTeam();
   const navigate = useNavigate();
   const [selectedTrip, setSelectedTrip] = useState<Trip | null>(null);
   const [showPlanner, setShowPlanner] = useState(false);
+  const [rosterTrip, setRosterTrip] = useState<Trip | null>(null);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -79,11 +83,12 @@ export default function Trips() {
         {/* Upcoming Trips */}
         <div className="mb-8">
           <h2 className="text-xl font-semibold mb-4">Upcoming Trips</h2>
-          <TripsList 
-            trips={upcomingTrips} 
+          <TripsList
+            trips={upcomingTrips}
             loading={loading}
             onPlanTrip={handlePlanTrip}
             onExportTrip={handleExportTrip}
+            onManageRoster={setRosterTrip}
           />
         </div>
 
@@ -91,10 +96,11 @@ export default function Trips() {
         {pastTrips.length > 0 && (
           <div>
             <h2 className="text-xl font-semibold mb-4">Past Trips</h2>
-            <TripsList 
-              trips={pastTrips} 
+            <TripsList
+              trips={pastTrips}
               loading={loading}
               onExportTrip={handleExportTrip}
+              onManageRoster={setRosterTrip}
             />
           </div>
         )}
@@ -110,6 +116,24 @@ export default function Trips() {
             </DialogTitle>
           </DialogHeader>
           {selectedTrip && <TripPlanner trip={selectedTrip} />}
+        </DialogContent>
+      </Dialog>
+
+      {/* Trip Roster Dialog */}
+      <Dialog open={!!rosterTrip} onOpenChange={open => !open && setRosterTrip(null)}>
+        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Users className="h-5 w-5" />
+              {rosterTrip?.name} — Who's Going
+            </DialogTitle>
+          </DialogHeader>
+          {rosterTrip && team?.id && (
+            <TripRosterPanel trip={rosterTrip} teamId={team.id} />
+          )}
+          {rosterTrip && !team?.id && (
+            <p className="text-sm text-muted-foreground py-4 text-center">No team selected.</p>
+          )}
         </DialogContent>
       </Dialog>
     </div>
