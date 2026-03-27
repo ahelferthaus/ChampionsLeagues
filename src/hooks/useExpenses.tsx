@@ -50,78 +50,113 @@ export function useExpenses(teamId?: string) {
   const { user } = useAuth();
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [myShares, setMyShares] = useState<ExpenseShare[]>([]);
+  const [allShares, setAllShares] = useState<ExpenseShare[]>([]);
   const [loading, setLoading] = useState(true);
   const [connectStatus, setConnectStatus] = useState<ConnectAccountStatus | null>(null);
 
-  const fetchExpenses = useCallback(async () => {
+  const fetchAll = useCallback(async () => {
     if (!user) return;
-    
+    setLoading(true);
+
     try {
-      // Fetch expenses for the team
-      let query = supabase
+      // 1. Fetch expenses for the team
+      let expenseQuery = supabase
         .from('expenses')
         .select('*')
         .order('created_at', { ascending: false });
-      
+
       if (teamId) {
-        query = query.eq('team_id', teamId);
+        expenseQuery = expenseQuery.eq('team_id', teamId);
       }
 
-      const { data, error } = await query;
-      if (error) throw error;
-      
-      // Cast the data to handle decimal conversion
-      setExpenses((data || []).map(e => ({
-        ...e,
-        total_amount: Number(e.total_amount)
-      })));
-    } catch (error) {
-      console.error('Error fetching expenses:', error);
-    }
-  }, [user, teamId]);
-
-  const fetchMyShares = useCallback(async () => {
-    if (!user) return;
-    
-    try {
-      const { data, error } = await supabase
+      // 2. Fetch my shares with expense details
+      const mySharesQuery = supabase
         .from('expense_shares')
-        .select(`
-          *,
-          expense:expenses(*)
-        `)
+        .select('*, expense:expenses(*)')
         .eq('user_id', user.id)
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
-      
-      setMyShares((data || []).map(s => ({
-        ...s,
-        amount: Number(s.amount),
-        expense: s.expense ? { ...s.expense, total_amount: Number(s.expense.total_amount) } : undefined
-      })));
-    } catch (error) {
-      console.error('Error fetching expense shares:', error);
-    }
-  }, [user]);
+      // 3. Check connect status
+      const connectQuery = supabase.functions.invoke('check-connect-status');
 
-  const checkConnectStatus = useCallback(async () => {
-    if (!user) return;
-    
-    try {
-      const { data, error } = await supabase.functions.invoke('check-connect-status');
-      if (error) throw error;
-      setConnectStatus(data);
-    } catch (error) {
-      console.error('Error checking connect status:', error);
-    }
-  }, [user]);
+      const [expensesResult, mySharesResult, connectResult] = await Promise.all([
+        expenseQuery,
+        mySharesQuery,
+        connectQuery,
+      ]);
 
-  const fetchAll = useCallback(async () => {
-    setLoading(true);
-    await Promise.all([fetchExpenses(), fetchMyShares(), checkConnectStatus()]);
-    setLoading(false);
-  }, [fetchExpenses, fetchMyShares, checkConnectStatus]);
+      // Process expenses
+      const expensesData = (expensesResult.data || []).map((e: any) => ({
+        ...e,
+        total_amount: Number(e.total_amount),
+      }));
+      setExpenses(expensesData);
+
+      // Process my shares
+      setMyShares(
+        (mySharesResult.data || []).map((s: any) => ({
+          ...s,
+          amount: Number(s.amount),
+          expense: s.expense
+            ? { ...s.expense, total_amount: Number(s.expense.total_amount) }
+            : undefined,
+        }))
+      );
+
+      // Process connect status
+      if (!connectResult.error) {
+        setConnectStatus(connectResult.data);
+      }
+
+      // 4. Fetch ALL shares for manager view (for all team expenses)
+      if (expensesData.length > 0) {
+        const expenseIds = expensesData.map((e: Expense) => e.id);
+
+        const { data: allSharesRaw } = await supabase
+          .from('expense_shares')
+          .select('*, expense:expenses(*)')
+          .in('expense_id', expenseIds)
+          .order('created_at', { ascending: false });
+
+        if (allSharesRaw && allSharesRaw.length > 0) {
+          // Fetch profile names for the unique user_ids
+          const userIds = [...new Set(allSharesRaw.map((s: any) => s.user_id as string))];
+          const { data: profilesData } = await supabase
+            .from('profiles')
+            .select('user_id, full_name, venmo_handle')
+            .in('user_id', userIds);
+
+          const profileMap = new Map(
+            (profilesData || []).map((p: any) => [p.user_id, p])
+          );
+
+          setAllShares(
+            allSharesRaw.map((s: any) => {
+              const profile = profileMap.get(s.user_id);
+              return {
+                ...s,
+                amount: Number(s.amount),
+                expense: s.expense
+                  ? { ...s.expense, total_amount: Number(s.expense.total_amount) }
+                  : undefined,
+                profile: profile
+                  ? { full_name: profile.full_name, venmo_handle: profile.venmo_handle }
+                  : undefined,
+              };
+            })
+          );
+        } else {
+          setAllShares([]);
+        }
+      } else {
+        setAllShares([]);
+      }
+    } catch (error) {
+      console.error('Error fetching expenses data:', error);
+    } finally {
+      setLoading(false);
+    }
+  }, [user, teamId]);
 
   useEffect(() => {
     fetchAll();
@@ -140,7 +175,6 @@ export function useExpenses(teamId?: string) {
     if (!user) return null;
 
     try {
-      // Create the expense
       const { data: newExpense, error: expenseError } = await supabase
         .from('expenses')
         .insert({
@@ -158,8 +192,7 @@ export function useExpenses(teamId?: string) {
 
       if (expenseError) throw expenseError;
 
-      // Create the shares
-      const sharesData = expense.shares.map(s => ({
+      const sharesData = expense.shares.map((s) => ({
         expense_id: newExpense.id,
         user_id: s.userId,
         child_id: s.childId || null,
@@ -173,7 +206,7 @@ export function useExpenses(teamId?: string) {
       if (sharesError) throw sharesError;
 
       toast({
-        title: "Expense Created",
+        title: 'Expense Created',
         description: `${expense.shares.length} family members have been invoiced.`,
       });
 
@@ -182,9 +215,9 @@ export function useExpenses(teamId?: string) {
     } catch (error) {
       console.error('Error creating expense:', error);
       toast({
-        title: "Error",
-        description: "Failed to create expense.",
-        variant: "destructive",
+        title: 'Error',
+        description: 'Failed to create expense.',
+        variant: 'destructive',
       });
       return null;
     }
@@ -204,9 +237,9 @@ export function useExpenses(teamId?: string) {
     } catch (error) {
       console.error('Error starting Connect onboarding:', error);
       toast({
-        title: "Error",
-        description: "Failed to start payment setup.",
-        variant: "destructive",
+        title: 'Error',
+        description: 'Failed to start payment setup.',
+        variant: 'destructive',
       });
     }
   };
@@ -221,14 +254,30 @@ export function useExpenses(teamId?: string) {
 
       if (data?.url) {
         window.open(data.url, '_blank');
+      } else if (data?.error) {
+        throw new Error(data.error);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error creating payment:', error);
-      toast({
-        title: "Error",
-        description: "Failed to start payment. The team manager may not have set up their payment account yet.",
-        variant: "destructive",
-      });
+      const msg: string = error?.message || '';
+
+      if (
+        msg.includes('Payment service not configured') ||
+        msg.includes('not set up their payment account')
+      ) {
+        toast({
+          title: 'Demo Mode',
+          description:
+            'Stripe is not configured. Use "Mark as Paid" in the menu to record this payment manually.',
+        });
+      } else {
+        toast({
+          title: 'Error',
+          description:
+            'Failed to start payment. The team manager may not have set up their payment account yet.',
+          variant: 'destructive',
+        });
+      }
     }
   };
 
@@ -247,17 +296,17 @@ export function useExpenses(teamId?: string) {
       if (error) throw error;
 
       toast({
-        title: "Marked as Paid",
-        description: "Payment has been recorded.",
+        title: 'Marked as Paid',
+        description: 'Payment has been recorded.',
       });
 
       await fetchAll();
     } catch (error) {
       console.error('Error marking share as paid:', error);
       toast({
-        title: "Error",
-        description: "Failed to update payment status.",
-        variant: "destructive",
+        title: 'Error',
+        description: 'Failed to update payment status.',
+        variant: 'destructive',
       });
     }
   };
@@ -274,15 +323,15 @@ export function useExpenses(teamId?: string) {
       if (error) throw error;
 
       toast({
-        title: "Venmo Updated",
-        description: "Your Venmo handle has been saved.",
+        title: 'Venmo Updated',
+        description: 'Your Venmo handle has been saved.',
       });
     } catch (error) {
       console.error('Error updating Venmo handle:', error);
       toast({
-        title: "Error",
-        description: "Failed to update Venmo handle.",
-        variant: "destructive",
+        title: 'Error',
+        description: 'Failed to update Venmo handle.',
+        variant: 'destructive',
       });
     }
   };
@@ -290,6 +339,7 @@ export function useExpenses(teamId?: string) {
   return {
     expenses,
     myShares,
+    allShares,
     loading,
     connectStatus,
     createExpense,

@@ -10,7 +10,7 @@ import { ExpenseShareCard } from '@/components/ExpenseShareCard';
 import { ExpenseManagerCard } from '@/components/ExpenseManagerCard';
 import { ConnectAccountSetup } from '@/components/ConnectAccountSetup';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { toast } from '@/hooks/use-toast';
 import { Receipt, DollarSign, Settings, Users } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
@@ -20,10 +20,13 @@ export default function Expenses() {
   const { team } = useTeam();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  
+
+  const currentTeamId = team?.id || 'demo-team-u14-boys';
+
   const {
     expenses,
     myShares,
+    allShares,
     loading,
     connectStatus,
     createExpense,
@@ -32,9 +35,9 @@ export default function Expenses() {
     markSharePaid,
     updateVenmoHandle,
     refetch,
-  } = useExpenses();
+  } = useExpenses(currentTeamId);
 
-  const { roster } = useRoster();
+  const { roster } = useRoster(currentTeamId);
   const [venmoHandle, setVenmoHandle] = useState<string>('');
 
   const isManager = roles.includes('club_admin') || roles.includes('team_manager');
@@ -65,25 +68,30 @@ export default function Expenses() {
   useEffect(() => {
     const payment = searchParams.get('payment');
     const setup = searchParams.get('setup');
-    
+    const shareId = searchParams.get('share');
+
     if (payment === 'success') {
+      // If Stripe returned the share id, mark it paid via stripe
+      if (shareId) {
+        markSharePaid(shareId, 'stripe');
+      }
       toast({
-        title: "Payment Successful!",
-        description: "Your payment has been processed.",
+        title: 'Payment Successful!',
+        description: 'Your payment has been processed.',
       });
       refetch();
       window.history.replaceState({}, '', '/expenses');
     } else if (payment === 'canceled') {
       toast({
-        title: "Payment Canceled",
+        title: 'Payment Canceled',
         description: "You can try again when you're ready.",
-        variant: "destructive",
+        variant: 'destructive',
       });
       window.history.replaceState({}, '', '/expenses');
     } else if (setup === 'complete') {
       toast({
-        title: "Account Setup Complete!",
-        description: "You can now receive payments from team members.",
+        title: 'Account Setup Complete!',
+        description: 'You can now receive payments from team members.',
       });
       refetch();
       window.history.replaceState({}, '', '/expenses');
@@ -100,24 +108,22 @@ export default function Expenses() {
 
   if (!user) return null;
 
-  // Convert roster members to format for expense dialog
-  const teamMembers = roster.map(m => ({
+  // Convert roster members to format for expense dialog, using real names
+  const teamMembers = roster.map((m) => ({
     userId: m.user_id,
-    name: `Player ${m.jersey_number || ''}`.trim() || 'Team Member',
+    name:
+      m.profile?.full_name ||
+      (m.jersey_number ? `Player #${m.jersey_number}` : 'Team Member'),
     childId: undefined,
   }));
 
-  // Use a placeholder team ID for now
-  const currentTeamId = 'demo-team';
-
-  const pendingShares = myShares.filter(s => s.status === 'pending');
-  const paidShares = myShares.filter(s => s.status === 'paid');
+  const pendingShares = myShares.filter((s) => s.status === 'pending');
+  const paidShares = myShares.filter((s) => s.status === 'paid');
   const totalOwed = pendingShares.reduce((sum, s) => sum + Number(s.amount), 0);
 
-  // Get shares for each expense (for manager view)
-  const getSharesForExpense = (expenseId: string) => {
-    return myShares.filter(s => s.expense_id === expenseId);
-  };
+  // Get all shares for a given expense (manager view)
+  const getSharesForExpense = (expenseId: string) =>
+    allShares.filter((s) => s.expense_id === expenseId);
 
   return (
     <div className="min-h-screen bg-background">
@@ -155,7 +161,8 @@ export default function Expenses() {
                 </div>
               </div>
               <p className="text-sm text-muted-foreground">
-                {pendingShares.length} pending expense{pendingShares.length !== 1 ? 's' : ''}
+                {pendingShares.length} pending expense
+                {pendingShares.length !== 1 ? 's' : ''}
               </p>
             </CardContent>
           </Card>
@@ -207,7 +214,7 @@ export default function Expenses() {
                           onPayCard={(id) => payExpenseShare(id, 'card')}
                           onPayACH={(id) => payExpenseShare(id, 'ach')}
                           onMarkPaid={(id, method) => markSharePaid(id, method)}
-                          creatorVenmoHandle={venmoHandle} // Would need to get from expense creator
+                          creatorVenmoHandle={venmoHandle}
                         />
                       ))}
                     </div>
@@ -242,7 +249,9 @@ export default function Expenses() {
                   <CardContent className="text-center py-12 text-muted-foreground">
                     <Receipt className="h-12 w-12 mx-auto mb-4 opacity-50" />
                     <p>No team expenses yet</p>
-                    <p className="text-sm">Create an expense to start collecting from team members</p>
+                    <p className="text-sm">
+                      Create an expense to start collecting from team members
+                    </p>
                   </CardContent>
                 </Card>
               ) : (
@@ -252,6 +261,7 @@ export default function Expenses() {
                       key={expense.id}
                       expense={expense}
                       shares={getSharesForExpense(expense.id)}
+                      onMarkSharePaid={(shareId, method) => markSharePaid(shareId, method)}
                     />
                   ))}
                 </div>
